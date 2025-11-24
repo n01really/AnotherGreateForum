@@ -1,4 +1,34 @@
 ﻿@page
 @model Another_Great_Forum.Pages.Shared.CreateForumModel
+
 @{
+    ViewData["Title"] = "Create Forum";
 }
+
+<div class="text-center">
+    <h1 class="display-4">Create a forum!</h1>
+    </div>
+
+    <form method="post">
+        <div>
+            <label asp-for="Forum.Name"></label>
+            <input asp-for="Forum.Name" class="form-control" />
+
+            <label asp-for="Forum.Description"></label>
+            <textarea asp-for="Forum.Description" cols="30" rows ="3" class="form-control" />
+ 
+            <select asp-for="Forum.Tag" class="form-control">
+                <option value="Select a tag"></option>
+                <option value ="Gaming"></option>
+                <option value ="Techonology"></option>
+                <option value ="Code"></option>
+            </select>
+
+            <input type="submit" class="btn btn-success" value="Save Forum"/>
+ 
+        </div>
+            
+    </form>
+
+
+
