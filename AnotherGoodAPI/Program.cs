@@ -1,4 +1,6 @@
 
+using AnotherGoodAPI.Endpoints.Forum;
+
 namespace AnotherGoodAPI
 {
     public class Program
@@ -27,6 +29,10 @@ namespace AnotherGoodAPI
 
 
             app.MapControllers();
+
+            // Minimal API endpoints for Forum (in-memory)
+            app.MapPost("/forums", CreateForum.HandleAsync);
+            app.MapGet("/forums", GetForum.HandleAsync);
 
             app.Run();
         }
