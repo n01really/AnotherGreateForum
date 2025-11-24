@@ -1,0 +1,6 @@
+@AnotherGoodAPI_HostAddress = http://localhost:5044
+
+GET {{AnotherGoodAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
