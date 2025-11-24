@@ -12,7 +12,7 @@ namespace ForumTest
     public class ForumTests
     {
         [Fact]
-        public async Task create_Forum_Test()
+        public async Task Create_Forum_Test()
         {
             // Arrange
             var httpClient = new HttpClient
@@ -43,7 +43,7 @@ namespace ForumTest
         }
 
         [Fact]
-        public async Task unique_Forum_Test() 
+        public async Task Unique_Forum_Test() 
         { 
             // Arrange
             var httpClient = new HttpClient
