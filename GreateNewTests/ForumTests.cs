@@ -17,7 +17,7 @@ namespace ForumTest
             // Arrange
             var httpClient = new HttpClient
             {
-                BaseAddress = new Uri("https://localhost:7001/") // Ändra till API-port
+                BaseAddress = new Uri("http://localhost:5044/") // Ändra till API-port
             };
 
             var createForum = new Forum
@@ -48,7 +48,7 @@ namespace ForumTest
             // Arrange
             var httpClient = new HttpClient
             {
-                BaseAddress = new Uri("https://localhost:7001/") // Ändra till API-port
+                BaseAddress = new Uri("http://localhost:5044/") // Ändra till API-port
             };
 
             var createForum1 = new Forum
