@@ -1,6 +1,7 @@
 using Another_Great_Forum.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using AnotherGoodAPI.Endpoints.Forum;
 
 namespace Another_Great_Forum
 {
@@ -43,6 +44,11 @@ namespace Another_Great_Forum
             app.MapStaticAssets();
             app.MapRazorPages()
                .WithStaticAssets();
+
+            // Minimal API endpoints for Forum (in-memory)
+            app.MapPost("/forums", CreateForum.HandleAsync);
+            app.MapGet("/forums", GetForum.HandleAsync);
+
 
             app.Run();
         }

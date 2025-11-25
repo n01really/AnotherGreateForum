@@ -23,16 +23,13 @@ namespace AnotherGoodAPI
                 app.MapOpenApi();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();  disabling https temporarily for testing purposes
 
             app.UseAuthorization();
 
 
             app.MapControllers();
 
-            // Minimal API endpoints for Forum (in-memory)
-            app.MapPost("/forums", CreateForum.HandleAsync);
-            app.MapGet("/forums", GetForum.HandleAsync);
 
             app.Run();
         }
