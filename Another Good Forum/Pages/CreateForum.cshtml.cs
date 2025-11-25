@@ -1,6 +1,8 @@
 using Another_Great_Forum.Data;
+using Another_Great_Forum.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 namespace Another_Great_Forum.Pages.Shared
 {
@@ -22,13 +24,21 @@ namespace Another_Great_Forum.Pages.Shared
 
         public async Task OnGetAsync()
         {
+
+            Forums = await _context.Forums.ToListAsync();
            
         }
 
         public async Task <IActionResult> OnPostAsync()
         {
-            
 
+            Forum.CreatedOnDate = DateTime.UtcNow;
+
+            if (!ModelState.IsValid)
+                return Page();
+
+            _context.Forums.Add(Forum);
+            await _context.SaveChangesAsync();
            return RedirectToPage("./Index");
         }
     }

@@ -1,34 +1,60 @@
 ﻿@page
 @model Another_Great_Forum.Pages.Shared.CreateForumModel
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
 
 @{
     ViewData["Title"] = "Create Forum";
+    var user = await UserManager.GetUserAsync(User);
 }
 
 <div class="text-center">
     <h1 class="display-4">Create a forum!</h1>
     </div>
 
-    <form method="post">
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <p>Du är inloggad som @User.Identity?.Name</p>
+    <form method="post" enctype="multipart/form-data">
         <div>
-            <label asp-for="Forum.Name"></label>
-            <input asp-for="Forum.Name" class="form-control" />
+            <div class="mb-3">
+                <label asp-for="Forum.Name" class="form-label"></label>
+                <input asp-for="Forum.Name" class="form-control" />
+            </div>
 
-            <label asp-for="Forum.Description"></label>
-            <textarea asp-for="Forum.Description" cols="30" rows ="3" class="form-control" />
- 
-            <select asp-for="Forum.Tag" class="form-control">
-                <option value="Select a tag"></option>
-                <option value ="Gaming"></option>
-                <option value ="Techonology"></option>
-                <option value ="Code"></option>
-            </select>
+            <div class="mb-3">
+                <label asp-for="Forum.Description" class="form-label"></label>
+                <textarea asp-for="Forum.Description" cols="30" rows="3" class="form-control"></textarea>
 
-            <input type="submit" class="btn btn-success" value="Save Forum"/>
- 
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Forum.Tag" class="form-label"></label>
+                <select asp-for="Forum.Tag" class="form-control">
+                    <option value="">Select Tag</option>
+                    <option value="Gaming">Gaming</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Code">Code</option>
+                </select>
+            </div>
+         
+            <div>
+                <input type="submit" class="btn btn-success" value="Save Forum" />
+            </div>
+
         </div>
-            
+
     </form>
+}
+else
+{
+    <div class="alert alert-danger">Du är inte inloggad!</div>
+}
+
+
+
+    
 
 
 

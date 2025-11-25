@@ -9,5 +9,7 @@ namespace Another_Great_Forum.Data
             : base(options)
         {
         }
+
+        public DbSet<Models.Forum> Forums { get; set; }
     }
 }
