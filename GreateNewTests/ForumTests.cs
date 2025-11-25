@@ -9,6 +9,7 @@ using Xunit;
 
 namespace ForumTest
 {
+    // todo: Adjust the Forum class according to your actual Forum model
     public class ForumTests
     {
         [Fact]
@@ -82,6 +83,23 @@ namespace ForumTest
             Assert.NotEqual(result1.Id, result2.Id);
             Assert.Equal("Test Forum 1", result1.Title);
             Assert.Equal("Test Forum 2", result2.Title);
+        }
+
+        [Fact]
+        public async Task Get_Forums_Test()
+        {
+            // Arrange
+            var httpClient = new HttpClient
+            {
+                BaseAddress = new Uri("http://localhost:5044/") // Ändra till API-port
+            };
+            // Act
+            var response = await httpClient.GetAsync("/api/forums");
+            // Assert
+            Assert.True(response.IsSuccessStatusCode, $"API call failed with status code: {response.StatusCode}");
+            var forums = await response.Content.ReadFromJsonAsync<List<Forum>>();
+            Assert.NotNull(forums);
+            Assert.True(forums.Count > 0, "No forums were returned from the API.");
         }
     }
 }
