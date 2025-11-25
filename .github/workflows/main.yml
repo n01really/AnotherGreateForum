@@ -1,0 +1,30 @@
+name: Matrix-Event-Reporter
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        version: ['9.0', '8.0']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: context manual 
+        run: |
+          echo "Started by: ${{ github.actor }}"
+          echo "Input note: ${{ github.event.inputs.note || 'N/A' }}"
+
+      - name: context push 
+        run: |
+          echo "Commit Message: ${{ github.event.head_commit.message || 'N/A' }}"
+          echo "Author: ${{ github.event.head_commit.author.name || 'N/A' }}"
