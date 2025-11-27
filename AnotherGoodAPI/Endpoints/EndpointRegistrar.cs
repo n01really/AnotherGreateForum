@@ -1,3 +1,4 @@
+﻿using AnotherGoodAPI.Endpoints.Categories;
 ﻿using AnotherGoodAPI.Endpoints.Posts;
 using AnotherGoodAPI.Endpoints.Users;
 using Microsoft.AspNetCore.Builder;
@@ -14,6 +15,11 @@ namespace AnotherGoodAPI.Endpoints
             new LogoutUserEndpoint().MapEndpoint(app);
             new UploadProfilePictureEndpoint().MapEndpoint(app);
 
+            // Categories
+            new CreateCategoryEndpoint().MapEndpoint(app);
+            new UpdateCategoryEndpoint().MapEndpoint(app);
+            new DeleteCategoryEndpoint().MapEndpoint(app);
+            new GetCategoriesEndpoint().MapEndpoint(app);
 
             // Posts
             new CreatePostEndpoint().MapEndpoint(app);
