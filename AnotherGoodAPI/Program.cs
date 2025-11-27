@@ -1,4 +1,5 @@
 using AnotherGoodAPI.Data;
+using AnotherGoodAPI.Endpoints;
 using AnotherGoodAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +32,8 @@ namespace AnotherGoodAPI
             app.UseAuthentication();
             app.UseAuthorization();
 
+            // Map endpoints
+            EndpointRegistrar.MapAllEndpoints(app);
 
             app.Run();
         }
