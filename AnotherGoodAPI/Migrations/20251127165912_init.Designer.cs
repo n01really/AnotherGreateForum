@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AnotherGoodAPI.Migrations
 {
     [DbContext(typeof(ForumDbContext))]
-    [Migration("20251127132759_init")]
+    [Migration("20251127165912_init")]
     partial class init
     {
         /// <inheritdoc />
