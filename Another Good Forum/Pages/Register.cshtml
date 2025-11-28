@@ -1,34 +1,30 @@
 ﻿@page
 @model Another_Great_Forum.Pages.RegisterModel
 @{
-    ViewData["Register"] = "Register";
+    ViewData["Title"] = "Register";
 }
 
-<div>
+<div class="register-container">
+
     <h1>Register</h1>
 
     <form method="post">
-        
-        <div>
-            <label asp-for="Input.DisplayName">Name</label>
-            <input asp-for="Input.DisplayName" />
+        <div class="mb-3">
+            <label asp-for="Input.DisplayName" class="form-label">Name</label>
+            <input asp-for="Input.DisplayName" class="form-control"/>
         </div>
 
-        <div>
-            <label asp-for="Input.Email">Email</label>
-            <input asp-for="Input.Email" />
+        <div class="mb-3"> 
+            <label asp-for="Input.Email" class="form-label">Email</label>
+            <input asp-for="Input.Email" class="form-control" />
         </div>
 
-        <div>
-            <label asp-for="Input.Password">Password</label>
-            <input asp-for="Input.Password" />
+        <div class="mb-3">
+            <label asp-for="Input.Password" class="form-label">Password</label>
+            <input asp-for="Input.Password" class="form-control" />
         </div>
 
-        <button type="submit">Register</button>
-
+        <button type="submit" class="btn btn-primary">Sign Up</button>
     </form>
-
-
-
 
 </div>

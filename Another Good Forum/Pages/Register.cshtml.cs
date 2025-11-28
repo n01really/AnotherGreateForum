@@ -32,8 +32,6 @@ namespace Another_Great_Forum.Pages
         [BindProperty]
         public InputModel Input { get; set; }
 
-
-
         public async Task <IActionResult> OnPostAsync()
         {
             var requestBody = new {displayName = Input.DisplayName, email = Input.Email, password = Input.Password};
@@ -47,9 +45,9 @@ namespace Another_Great_Forum.Pages
             else
             {
                 Console.WriteLine("Registration failed..");
+                return Page();
             }
 
-            return Page();
             
         }
     }
