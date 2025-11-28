@@ -1,0 +1,34 @@
+﻿@page
+@model Another_Great_Forum.Pages.RegisterModel
+@{
+    ViewData["Register"] = "Register";
+}
+
+<div>
+    <h1>Register</h1>
+
+    <form method="post">
+        
+        <div>
+            <label asp-for="Input.DisplayName">Name</label>
+            <input asp-for="Input.DisplayName" />
+        </div>
+
+        <div>
+            <label asp-for="Input.Email">Email</label>
+            <input asp-for="Input.Email" />
+        </div>
+
+        <div>
+            <label asp-for="Input.Password">Password</label>
+            <input asp-for="Input.Password" />
+        </div>
+
+        <button type="submit">Register</button>
+
+    </form>
+
+
+
+
+</div>
