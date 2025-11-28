@@ -12,8 +12,6 @@ namespace Another_Great_Forum
 
             // Add services to the container.
 
-            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddRazorPages();
 
             builder.Services.AddHttpClient<Pages.RegisterModel>();

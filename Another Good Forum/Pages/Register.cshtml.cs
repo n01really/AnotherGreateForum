@@ -42,6 +42,7 @@ namespace Another_Great_Forum.Pages
             if (response.IsSuccessStatusCode)
             {
                 Console.WriteLine("Registration successful!");
+                return RedirectToPage("./Index");
             }
             else
             {
@@ -49,6 +50,7 @@ namespace Another_Great_Forum.Pages
             }
 
             return Page();
+            
         }
     }
 }
