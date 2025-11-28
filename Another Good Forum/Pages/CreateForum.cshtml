@@ -52,7 +52,26 @@ else
     <div class="alert alert-danger">Du är inte inloggad!</div>
 }
 
+<div>
+    <h5>Forums</h5>
 
+    <ul>
+        @if(Model.Forums != null)
+        {
+            foreach (var forum in Model.Forums)
+            {
+                <li>
+                    <a asap-page="Details" asp-route-id="@forum.Id">
+                        <h3>@forum.Name</h3>
+                    </a>
+                </li>
+
+            }
+        }
+    
+    </ul>
+
+</div>
 
     
 
