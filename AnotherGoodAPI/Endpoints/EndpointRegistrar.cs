@@ -1,6 +1,7 @@
 ﻿using AnotherGoodAPI.Endpoints.Categories;
 ﻿using AnotherGoodAPI.Endpoints.Posts;
 using AnotherGoodAPI.Endpoints.Users;
+using AnotherGoodAPI.Endpoints.Comments;
 using Microsoft.AspNetCore.Builder;
 
 namespace AnotherGoodAPI.Endpoints
@@ -28,6 +29,12 @@ namespace AnotherGoodAPI.Endpoints
             new GetPostsEndpoint().MapEndpoint(app);
             new GetPostEndpoint().MapEndpoint(app);
             new ToggleLikeEndpoint().MapEndpoint(app);
+
+            // Comments
+            new CreateCommentEndpoint().MapEndpoint(app);
+            new UpdateCommentEndpoint().MapEndpoint(app);
+            new DeleteCommentEndpoint().MapEndpoint(app);
+            new GetCommentsEndpoint().MapEndpoint(app);
         }
     }
 }
