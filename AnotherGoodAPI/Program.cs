@@ -8,11 +8,11 @@ namespace AnotherGoodAPI
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services
+            // Add DbContext
             builder.Services.AddDbContext<ForumDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -21,19 +21,21 @@ namespace AnotherGoodAPI
                 .AddEntityFrameworkStores<ForumDbContext>()
                 .AddDefaultTokenProviders();
 
-
             builder.Services.AddAuthentication();
             builder.Services.AddAuthorization();
 
             var app = builder.Build();
 
-
+            // Middleware
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
 
             // Map endpoints
             EndpointRegistrar.MapAllEndpoints(app);
+
+            // Seed Identity Users and Roles
+            await IdentitySeeder.SeedAsync(app.Services);
 
             app.Run();
         }
