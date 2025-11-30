@@ -1,7 +1,8 @@
 ﻿using AnotherGoodAPI.Endpoints.Categories;
+using AnotherGoodAPI.Endpoints.Comments;
+using AnotherGoodAPI.Endpoints.Messages;
 ﻿using AnotherGoodAPI.Endpoints.Posts;
 using AnotherGoodAPI.Endpoints.Users;
-using AnotherGoodAPI.Endpoints.Comments;
 using Microsoft.AspNetCore.Builder;
 
 namespace AnotherGoodAPI.Endpoints
@@ -35,6 +36,12 @@ namespace AnotherGoodAPI.Endpoints
             new UpdateCommentEndpoint().MapEndpoint(app);
             new DeleteCommentEndpoint().MapEndpoint(app);
             new GetCommentsEndpoint().MapEndpoint(app);
+
+            // Messages
+            new SendMessageEndpoint().MapEndpoint(app);
+            new MarkAsReadEndpoint().MapEndpoint(app);
+            new GetInboxEndpoint().MapEndpoint(app);
+            new DeleteMessageEndpoint().MapEndpoint(app);
         }
     }
 }
