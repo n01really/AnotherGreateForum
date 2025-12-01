@@ -53,6 +53,14 @@ namespace AnotherGoodAPI.Data
             // Indexes for performance
             builder.Entity<Post>().HasIndex(p => p.CreatedAt);
             builder.Entity<Post>().HasIndex(p => p.CategoryId);
+
+
+            // Seed initial categories
+            builder.Entity<Category>().HasData(
+            new Category { Id = 1, Name = "General Discussion", Description = "Talk about anything!" },
+            new Category { Id = 2, Name = "Gaming", Description = "All about games!" },
+            new Category { Id = 3, Name = "Technology", Description = "Tech news and projects!" }
+            );
         }
     }
 }

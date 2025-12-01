@@ -1,45 +1,61 @@
-using Another_Great_Forum.Data;
-using Another_Great_Forum.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace Another_Great_Forum.Pages.Shared
 {
     public class CreateForumModel : PageModel
     {
 
-        private readonly Data.ApplicationDbContext _context;
+        private readonly HttpClient _httpClient;
 
-        public CreateForumModel(Data.ApplicationDbContext context)
+        public CreateForumModel(HttpClient client)
         {
-            _context = context;
+            _httpClient = client;
+        }
+
+        public class Input()
+        {
+            [Required, MaxLength(200)]
+            public string Title { get; set; }
+
+            [Required]
+            public string Body { get; set; }
+
+            [Required]
+            public int CategoryId { get; set; }
+
+            [Required]
+            public string AuthorId { get; set; }
+
         }
 
         [BindProperty]
-        public Models.Forum Forum { get; set; }
+        public Input input { get; set; }
 
-        public List<Models.Forum> Forums { get; set; }
+        //public List<CategoryDto> Categories { get; set; } = new();
+
+        //public async Task OnGetAsync()
+        //{
+        //    var request = await _httpClient.GetAsync();
+        //}
 
 
-        public async Task OnGetAsync()
-        {
-
-            Forums = await _context.Forums.ToListAsync();
-           
-        }
 
         public async Task <IActionResult> OnPostAsync()
         {
+            var client = _httpClient;
+            var response = await client.PostAsJsonAsync("https://localhost:7242/posts", input);
+            
 
-            Forum.CreatedOnDate = DateTime.UtcNow;
-
-            if (!ModelState.IsValid)
+            if(!response.IsSuccessStatusCode)
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while creating the forum post.");
                 return Page();
-
-            _context.Forums.Add(Forum);
-            await _context.SaveChangesAsync();
-           return RedirectToPage("./Index");
+            }
+            
+            return RedirectToPage("./Index");
         }
     }
 }

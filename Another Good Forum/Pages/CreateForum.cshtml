@@ -19,25 +19,27 @@
     <form method="post" enctype="multipart/form-data">
         <div>
             <div class="mb-3">
-                <label asp-for="Forum.Name" class="form-label"></label>
-                <input asp-for="Forum.Name" class="form-control" />
+                <label asp-for="input.Title" class="form-label">Title</label>
+                <input asp-for="input.Title" class="form-control" />
             </div>
 
             <div class="mb-3">
-                <label asp-for="Forum.Description" class="form-label"></label>
-                <textarea asp-for="Forum.Description" cols="30" rows="3" class="form-control"></textarea>
+                <label asp-for="input.Body" class="form-label">Text</label>
+                <textarea asp-for="input.Body" cols="30" rows="3" class="form-control"></textarea>
 
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Forum.Tag" class="form-label"></label>
-                <select asp-for="Forum.Tag" class="form-control">
+
+            @* <div class="mb-3">
+                <label asp-for="input.CategoryId" class="form-label">Category</label>
+                <textarea asp-for="input.CategoryId" cols="30" rows="3" class="form-control"></textarea>
+                <select asp-for="input.CategoryId" class="form-control">
                     <option value="">Select Tag</option>
                     <option value="Gaming">Gaming</option>
                     <option value="Technology">Technology</option>
                     <option value="Code">Code</option>
                 </select>
-            </div>
+            </div> *@
          
             <div>
                 <input type="submit" class="btn btn-success" value="Save Forum" />
@@ -52,26 +54,7 @@ else
     <div class="alert alert-danger">Du är inte inloggad!</div>
 }
 
-<div>
-    <h5>Forums</h5>
 
-    <ul>
-        @if(Model.Forums != null)
-        {
-            foreach (var forum in Model.Forums)
-            {
-                <li>
-                    <a asap-page="Details" asp-route-id="@forum.Id">
-                        <h3>@forum.Name</h3>
-                    </a>
-                </li>
-
-            }
-        }
-    
-    </ul>
-
-</div>
 
     
 
