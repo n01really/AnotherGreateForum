@@ -15,6 +15,8 @@ namespace Another_Great_Forum
 
             builder.Services.AddHttpClient<Pages.RegisterModel>();
 
+            builder.Services.AddHttpClient<Pages.LoginModel>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
