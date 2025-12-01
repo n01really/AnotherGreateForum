@@ -11,9 +11,9 @@ namespace Another_Great_Forum
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddHttpClient<Pages.LoginModel>();
-
             builder.Services.AddRazorPages();
+
+            builder.Services.AddHttpClient<Pages.RegisterModel>();
 
             var app = builder.Build();
 
