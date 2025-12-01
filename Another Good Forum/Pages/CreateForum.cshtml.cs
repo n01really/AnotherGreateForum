@@ -34,14 +34,15 @@ namespace Another_Great_Forum.Pages.Shared
         [BindProperty]
         public Input input { get; set; }
 
-        //public List<CategoryDto> Categories { get; set; } = new();
+        public List<CategoryDto> Categories { get; set; } 
 
-        //public async Task OnGetAsync()
-        //{
-        //    var request = await _httpClient.GetAsync();
-        //}
+        public record CategoryDto(int Id, string Name, string Description);
 
+        public async Task OnGet()
+        {
+            Categories = await _httpClient.GetFromJsonAsync<List<CategoryDto>>("https://localhost:7242/categories");
 
+        }
 
         public async Task <IActionResult> OnPostAsync()
         {

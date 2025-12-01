@@ -30,6 +30,25 @@
             </div>
 
 
+            <div class="mb-3">
+                <label asp-for="input.CategoryId" class="form-label">Category</label>
+
+                @foreach(var category in Model.Categories)
+                {
+                    <li>
+                        <select asp-for="input.CategoryId" class="form-control">
+                            <option value="@category.Id"></option>
+                            
+                        </select>
+          
+
+                    </li>
+                }
+
+
+            </div>
+
+
             @* <div class="mb-3">
                 <label asp-for="input.CategoryId" class="form-label">Category</label>
                 <textarea asp-for="input.CategoryId" cols="30" rows="3" class="form-control"></textarea>
