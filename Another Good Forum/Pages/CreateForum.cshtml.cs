@@ -15,7 +15,7 @@ namespace Another_Great_Forum.Pages.Shared
             _httpClient = client;
         }
 
-        public class Input()
+        public class Input
         {
             [Required, MaxLength(200)]
             public string Title { get; set; }
@@ -34,20 +34,20 @@ namespace Another_Great_Forum.Pages.Shared
         [BindProperty]
         public Input input { get; set; }
 
-        public List<CategoryDto> Categories { get; set; } 
+        public List<CategoryDto> Categories { get; set; } = new List<CategoryDto>();
 
         public record CategoryDto(int Id, string Name, string Description);
 
         public async Task OnGet()
         {
-            Categories = await _httpClient.GetFromJsonAsync<List<CategoryDto>>("https://localhost:7242/categories");
+            Categories = await _httpClient.GetFromJsonAsync<List<CategoryDto>>("https://localhost:7242/categories")
+             ?? new List<CategoryDto>();
 
         }
 
         public async Task <IActionResult> OnPostAsync()
         {
-            var client = _httpClient;
-            var response = await client.PostAsJsonAsync("https://localhost:7242/posts", input);
+            var response = await _httpClient.PostAsJsonAsync("https://localhost:7242/posts", input);
             
 
             if(!response.IsSuccessStatusCode)

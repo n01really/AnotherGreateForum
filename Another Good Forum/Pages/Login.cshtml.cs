@@ -6,6 +6,8 @@ namespace Another_Great_Forum.Pages
 {
     public class LoginModel : PageModel
     {
+
+
         private readonly HttpClient _httpClient;
 
 
@@ -23,6 +25,9 @@ namespace Another_Great_Forum.Pages
             public string Password { get; set; }
                 
         };
+
+        
+
 
         [BindProperty]
         public InputModel Input { get; set; }

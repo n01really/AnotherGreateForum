@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using AnotherGoodAPI.Data;
+using AnotherGoodAPI.Models;
 
 namespace Another_Great_Forum
 {
@@ -13,6 +15,11 @@ namespace Another_Great_Forum
             builder.Services.AddRazorPages();
 
             builder.Services.AddHttpClient<Pages.RegisterModel>();
+
+            builder.Services.AddHttpClient<Pages.Pages_CreateForum>();
+
+            builder.Services.AddDefaultIdentity<ApplicationUser>()
+                .AddEntityFrameworkStores<ForumDbContext>();
 
             var app = builder.Build();
 

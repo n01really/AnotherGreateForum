@@ -29,36 +29,17 @@
 
             </div>
 
-
-            <div class="mb-3">
+            <div>
                 <label asp-for="input.CategoryId" class="form-label">Category</label>
-
-                @foreach(var category in Model.Categories)
-                {
-                    <li>
-                        <select asp-for="input.CategoryId" class="form-control">
-                            <option value="@category.Id"></option>
-                            
-                        </select>
-          
-
-                    </li>
-                }
-
-
+                <select asp-for="input.CategoryId" class="form-control">
+                    <option value="">Select Category</option>
+                    @foreach (var category in Model.Categories)
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                </select>
             </div>
 
-
-            @* <div class="mb-3">
-                <label asp-for="input.CategoryId" class="form-label">Category</label>
-                <textarea asp-for="input.CategoryId" cols="30" rows="3" class="form-control"></textarea>
-                <select asp-for="input.CategoryId" class="form-control">
-                    <option value="">Select Tag</option>
-                    <option value="Gaming">Gaming</option>
-                    <option value="Technology">Technology</option>
-                    <option value="Code">Code</option>
-                </select>
-            </div> *@
          
             <div>
                 <input type="submit" class="btn btn-success" value="Save Forum" />
