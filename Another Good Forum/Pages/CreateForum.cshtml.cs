@@ -9,6 +9,8 @@ namespace Another_Great_Forum.Pages.Shared
 
         public record CategoryDto(int Id, string Name, string Description);
 
+
+
         public void OnGet()
         {
             // Categories will be loaded via JS fetch from backend
