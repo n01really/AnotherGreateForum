@@ -1,5 +1,5 @@
 ﻿@page
-@model IndexModel
+@model Another_Great_Forum.Pages.IndexModel
 @{
     ViewData["Title"] = "Home page";
 }
@@ -7,4 +7,32 @@
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+    <div id="login-status" class="mt-3"></div>
 </div>
+
+@section Scripts {
+    <script>
+        async function checkLogin() {
+            try {
+                const res = await fetch('https://localhost:7242/users/me', {
+                    credentials: 'include'
+                });
+                const div = document.getElementById('login-status');
+
+                if (res.ok) {
+                    const data = await res.json();
+                    div.innerHTML = `You are logged in! Your user ID: ${data.id} <br/>
+                                     <a class="btn btn-primary" href="@Url.Page("/Shared/CreateForum")">Create Post</a>`;
+                } else {
+                    div.innerHTML = `You are not logged in. <a class="btn btn-primary" href="@Url.Page("/Login")">Login here</a> or
+                                     <a class="btn btn-secondary" href="@Url.Page("/Register")">Register</a>`;
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        checkLogin();
+    </script>
+}

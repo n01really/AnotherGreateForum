@@ -3,6 +3,7 @@ using AnotherGoodAPI.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace AnotherGoodAPI.Endpoints.Posts;
 
@@ -22,7 +23,11 @@ public class CreatePostEndpoint : IEndpointMapper
 
     public async Task<IResult> HandleAsync(Request request, ForumDbContext db, HttpContext http)
     {
-        var userId = http.User.Identity?.Name;
+        
+        var userId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null)
+            return Results.Unauthorized();
+
         if (userId == null)
             return Results.Unauthorized();
 

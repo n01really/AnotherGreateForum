@@ -30,6 +30,8 @@ public class LoginUserEndpoint : IEndpointMapper
         if (!result.Succeeded)
             return Results.Unauthorized();
 
+        // Cookie is automatically set in response by Identity
         return Results.Ok(new Response("Logged in successfully"));
     }
+
 }

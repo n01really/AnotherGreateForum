@@ -1,62 +1,95 @@
 ﻿@page
 @model Another_Great_Forum.Pages.Shared.CreateForumModel
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
-
 @{
     ViewData["Title"] = "Create Forum";
-    var user = await UserManager.GetUserAsync(User);
 }
 
-<div class="text-center">
-    <h1 class="display-4">Create a forum!</h1>
+<h1>Create a Forum Post</h1>
+
+<div id="loginNotice" class="alert alert-danger mt-3" style="display:none;">
+    You are not logged in!
+</div>
+
+<form id="createForumForm" style="display:none;" onsubmit="event.preventDefault(); submitForum();">
+    <div class="mb-3">
+        <label for="title" class="form-label">Title</label>
+        <input id="title" class="form-control" />
     </div>
 
+    <div class="mb-3">
+        <label for="body" class="form-label">Text</label>
+        <textarea id="body" class="form-control" rows="4"></textarea>
+    </div>
 
-@if (SignInManager.IsSignedIn(User))
-{
-    <p>Du är inloggad som @User.Identity?.Name</p>
-    <form method="post" enctype="multipart/form-data">
-        <div>
-            <div class="mb-3">
-                <label asp-for="input.Title" class="form-label">Title</label>
-                <input asp-for="input.Title" class="form-control" />
-            </div>
+    <div class="mb-3">
+        <label for="category" class="form-label">Category</label>
+        <select id="category" class="form-control">
+            <option value="">Select Category</option>
+        </select>
+    </div>
 
-            <div class="mb-3">
-                <label asp-for="input.Body" class="form-label">Text</label>
-                <textarea asp-for="input.Body" cols="30" rows="3" class="form-control"></textarea>
+    <button type="submit" class="btn btn-success">Save Forum</button>
+</form>
 
-            </div>
+@section Scripts {
+    <script>
+        async function loadCategories() {
+            try {
+                const meResponse = await fetch('https://localhost:7242/users/me', { credentials: 'include' });
+                if (!meResponse.ok) {
+                    document.getElementById('loginNotice').style.display = 'block';
+                    return;
+                }
 
-            <div>
-                <label asp-for="input.CategoryId" class="form-label">Category</label>
-                <select asp-for="input.CategoryId" class="form-control">
-                    <option value="">Select Category</option>
-                    @foreach (var category in Model.Categories)
-                    {
-                        <option value="@category.Id">@category.Name</option>
-                    }
-                </select>
-            </div>
+                document.getElementById('createForumForm').style.display = 'block';
+                const categoriesResponse = await fetch('https://localhost:7242/categories', { credentials: 'include' });
+                const categories = await categoriesResponse.json();
+                const select = document.getElementById('category');
 
-         
-            <div>
-                <input type="submit" class="btn btn-success" value="Save Forum" />
-            </div>
+                categories.forEach(c => {
+                    const option = document.createElement('option');
+                    option.value = c.id;
+                    option.textContent = c.name;
+                    select.appendChild(option);
+                });
 
-        </div>
+            } catch (err) {
+                console.error(err);
+                alert('Error loading categories or checking login.');
+            }
+        }
 
-    </form>
+        async function submitForum() {
+            const title = document.getElementById('title').value;
+            const body = document.getElementById('body').value;
+            const categoryId = document.getElementById('category').value;
+
+            if (!title || !body || !categoryId) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            try {
+                const postResponse = await fetch('https://localhost:7242/posts', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ Title: title, Content: body, CategoryId: parseInt(categoryId) })
+                });
+
+                if(postResponse.ok){
+                    alert('Forum post created successfully!');
+                    window.location.href = '@Url.Page("/Index")';
+                } else {
+                    const error = await postResponse.text();
+                    alert('Error creating forum post: ' + error);
+                }
+            } catch(err) {
+                console.error(err);
+                alert('Error creating forum post.');
+            }
+        }
+
+        loadCategories();
+    </script>
 }
-else
-{
-    <div class="alert alert-danger">Du är inte inloggad!</div>
-}
-
-
-
-    
-
-
-

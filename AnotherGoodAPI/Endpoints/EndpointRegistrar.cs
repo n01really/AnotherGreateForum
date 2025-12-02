@@ -42,6 +42,9 @@ namespace AnotherGoodAPI.Endpoints
             new MarkAsReadEndpoint().MapEndpoint(app);
             new GetInboxEndpoint().MapEndpoint(app);
             new DeleteMessageEndpoint().MapEndpoint(app);
+
+            // CurrentUser
+            new GetCurrentUserEndpoint().MapEndpoint(app);
         }
     }
 }

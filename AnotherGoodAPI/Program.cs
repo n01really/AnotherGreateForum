@@ -16,17 +16,28 @@ namespace AnotherGoodAPI
             builder.Services.AddDbContext<ForumDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            // Identity
+            // Identity (this already sets up the cookie)
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ForumDbContext>()
                 .AddDefaultTokenProviders();
 
-
-            builder.Services.AddAuthentication();
             builder.Services.AddAuthorization();
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("FrontendPolicy", policy =>
+                {
+                    policy.WithOrigins("https://localhost:7286", "http://localhost:5155")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials(); 
+                });
+            });
+
 
             var app = builder.Build();
 
+            app.UseCors("FrontendPolicy");
 
             app.UseHttpsRedirection();
             app.UseAuthentication();

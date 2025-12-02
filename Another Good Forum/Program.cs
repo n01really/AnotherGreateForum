@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using AnotherGoodAPI.Data;
-using AnotherGoodAPI.Models;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Another_Great_Forum
 {
@@ -11,39 +10,29 @@ namespace Another_Great_Forum
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // Add services for Razor Pages
             builder.Services.AddRazorPages();
-
-            builder.Services.AddHttpClient<Pages.RegisterModel>();
-
-            builder.Services.AddHttpClient<Pages.Pages_CreateForum>();
-
-            builder.Services.AddDefaultIdentity<ApplicationUser>()
-                .AddEntityFrameworkStores<ForumDbContext>();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // Configure middleware
             if (app.Environment.IsDevelopment())
             {
-                app.UseMigrationsEndPoint();
+                app.UseDeveloperExceptionPage();
             }
             else
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles(); // serve CSS, JS, images
 
             app.UseRouting();
 
-            app.UseAuthorization();
-
-            app.MapStaticAssets();
+            // Map Razor Pages
             app.MapRazorPages();
-
 
             app.Run();
         }
