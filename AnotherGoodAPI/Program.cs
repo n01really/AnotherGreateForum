@@ -39,6 +39,8 @@ namespace AnotherGoodAPI
 
             app.UseCors("FrontendPolicy");
 
+            app.UseStaticFiles();
+
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
