@@ -12,32 +12,40 @@ public class ToggleLikeEndpoint : IEndpointMapper
     {
         app.MapPost("/posts/{id:int}/togglelike", HandleAsync)
            .WithName("ToggleLike")
-           .Produces(StatusCodes.Status200OK)
+           .Produces<Response>(StatusCodes.Status200OK)
            .Produces(StatusCodes.Status401Unauthorized)
            .Produces(StatusCodes.Status404NotFound);
     }
 
+    public record Response(string Message);
+
     public async Task<IResult> HandleAsync(int id, ForumDbContext db, HttpContext http)
     {
         var userId = http.User.Identity?.Name;
-        if (userId == null) return Results.Unauthorized();
+        if (userId == null)
+            return Results.Unauthorized();
 
         var post = await db.Posts.FindAsync(id);
-        if (post == null) return Results.NotFound();
+        if (post == null)
+            return Results.NotFound();
 
         var like = await db.PostLikes
             .FirstOrDefaultAsync(l => l.PostId == id && l.UserId == userId);
 
+        string message;
+
         if (like != null)
         {
             db.PostLikes.Remove(like);
-            await db.SaveChangesAsync();
-            return Results.Ok("unliked");
+            message = "unliked";
+        }
+        else
+        {
+            db.PostLikes.Add(new PostLike { PostId = id, UserId = userId });
+            message = "liked";
         }
 
-        db.PostLikes.Add(new PostLike { PostId = id, UserId = userId });
         await db.SaveChangesAsync();
-
-        return Results.Ok("liked");
+        return Results.Ok(new Response(message));
     }
 }

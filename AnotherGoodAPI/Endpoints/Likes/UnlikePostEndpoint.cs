@@ -19,10 +19,12 @@ public class UnlikePostEndpoint : IEndpointMapper
     public async Task<IResult> HandleAsync(int postId, ForumDbContext db, HttpContext http)
     {
         var userId = http.User.Identity?.Name;
-        if (userId == null) return Results.Unauthorized();
+        if (userId == null)
+            return Results.Unauthorized();
 
         var like = await db.PostLikes.FirstOrDefaultAsync(pl => pl.PostId == postId && pl.UserId == userId);
-        if (like == null) return Results.NotFound();
+        if (like == null)
+            return Results.NotFound();
 
         db.PostLikes.Remove(like);
         await db.SaveChangesAsync();

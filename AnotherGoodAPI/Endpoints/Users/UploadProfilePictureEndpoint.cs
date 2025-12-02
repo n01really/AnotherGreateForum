@@ -11,9 +11,10 @@ public class UploadProfilePictureEndpoint : IEndpointMapper
     {
         app.MapPost("/users/profile-picture", HandleAsync)
            .WithName("UploadProfilePicture")
-           .Produces(StatusCodes.Status200OK)
+           .Produces<Response>(StatusCodes.Status200OK)
            .Produces(StatusCodes.Status401Unauthorized)
            .Produces(StatusCodes.Status404NotFound)
+           .Produces(StatusCodes.Status400BadRequest)
            .Accepts<IFormFile>("multipart/form-data");
     }
 
@@ -29,13 +30,19 @@ public class UploadProfilePictureEndpoint : IEndpointMapper
         if (user == null)
             return Results.NotFound();
 
-        // For simplicity, just store the file name. Replace with storage logic as needed.
+        if (file == null || file.Length == 0)
+            return Results.BadRequest("No file uploaded.");
+
+        // Example storage logic: store only file name; replace with real storage if needed
         var fileName = $"{Guid.NewGuid()}_{file.FileName}";
         user.ProfilePictureUrl = fileName;
 
         var result = await userManager.UpdateAsync(user);
         if (!result.Succeeded)
-            return Results.BadRequest(result.Errors);
+        {
+            var errors = result.Errors.Select(e => e.Description);
+            return Results.BadRequest(errors);
+        }
 
         return Results.Ok(new Response(user.ProfilePictureUrl));
     }

@@ -19,12 +19,15 @@ public class DeleteCommentEndpoint : IEndpointMapper
     public async Task<IResult> HandleAsync(int id, ForumDbContext db, HttpContext http)
     {
         var userId = http.User.Identity?.Name;
-        if (userId == null) return Results.Unauthorized();
+        if (userId == null)
+            return Results.Unauthorized();
 
         var comment = await db.Comments.FindAsync(id);
-        if (comment == null) return Results.NotFound();
+        if (comment == null)
+            return Results.NotFound();
 
-        if (comment.AuthorId != userId) return Results.Forbid();
+        if (comment.AuthorId != userId)
+            return Results.Forbid();
 
         db.Comments.Remove(comment);
         await db.SaveChangesAsync();

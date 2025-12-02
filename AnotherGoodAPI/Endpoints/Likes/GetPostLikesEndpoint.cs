@@ -11,12 +11,14 @@ public class GetPostLikesEndpoint : IEndpointMapper
     {
         app.MapGet("/likes/post/{postId:int}", HandleAsync)
            .WithName("GetPostLikes")
-           .Produces(StatusCodes.Status200OK);
+           .Produces<Response>(StatusCodes.Status200OK);
     }
+
+    public record Response(int PostId, int Likes);
 
     public async Task<IResult> HandleAsync(int postId, ForumDbContext db)
     {
         var likeCount = await db.PostLikes.CountAsync(pl => pl.PostId == postId);
-        return Results.Ok(new { PostId = postId, Likes = likeCount });
+        return Results.Ok(new Response(postId, likeCount));
     }
 }

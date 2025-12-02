@@ -11,16 +11,19 @@ public class CheckUserLikeEndpoint : IEndpointMapper
     {
         app.MapGet("/likes/post/{postId:int}/user", HandleAsync)
            .WithName("CheckUserLike")
-           .Produces(StatusCodes.Status200OK)
+           .Produces<Response>(StatusCodes.Status200OK)
            .Produces(StatusCodes.Status401Unauthorized);
     }
+
+    public record Response(int PostId, bool Liked);
 
     public async Task<IResult> HandleAsync(int postId, ForumDbContext db, HttpContext http)
     {
         var userId = http.User.Identity?.Name;
-        if (userId == null) return Results.Unauthorized();
+        if (userId == null)
+            return Results.Unauthorized();
 
         var liked = await db.PostLikes.AnyAsync(pl => pl.PostId == postId && pl.UserId == userId);
-        return Results.Ok(new { PostId = postId, Liked = liked });
+        return Results.Ok(new Response(postId, liked));
     }
 }
