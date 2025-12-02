@@ -49,6 +49,9 @@ namespace AnotherGoodAPI.Endpoints
             new UnlikePostEndpoint().MapEndpoint(app);
             new GetPostLikesEndpoint().MapEndpoint(app);
             new CheckUserLikeEndpoint().MapEndpoint(app);
+
+            // CurrentUser
+            new GetCurrentUserEndpoint().MapEndpoint(app);
         }
     }
 }

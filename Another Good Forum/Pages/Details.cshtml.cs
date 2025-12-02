@@ -1,11 +1,10 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Another_Great_Forum.Pages
 {
-    public class RegisterModel : PageModel
+    public class DetailsModel : PageModel
     {
-        public void OnGet()
-        {
-        }
+
     }
 }

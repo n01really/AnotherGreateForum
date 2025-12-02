@@ -1,16 +1,12 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Another_Great_Forum.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly ILogger<IndexModel> _logger;
+        public List<PostDto> Posts { get; set; } = new List<PostDto>();
 
-        public IndexModel(ILogger<IndexModel> logger)
-        {
-            _logger = logger;
-        }
+        public record PostDto(int Id, string Title, string Body, string AuthorDisplayName, DateTime CreatedAt, int CommentCount, int LikeCount);
 
         public void OnGet()
         {

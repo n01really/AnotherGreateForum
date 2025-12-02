@@ -24,9 +24,12 @@ public class RegisterUserEndpoint : IEndpointMapper
 
     public record Response(string Id, string DisplayName, string Email, string? ProfilePictureUrl);
 
-    private async Task<IResult> HandleAsync(Request request, UserManager<ApplicationUser> userManager)
+    private async Task<IResult> HandleAsync(Request request, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
     {
-        // Check if Email already exists
+        if (request == null)
+            return Results.BadRequest("Request body is empty.");
+
+        // Check if email already exists
         var existingUser = await userManager.FindByEmailAsync(request.Email);
         if (existingUser != null)
             return Results.BadRequest("A user with this email already exists.");
@@ -45,13 +48,10 @@ public class RegisterUserEndpoint : IEndpointMapper
             return Results.BadRequest(errors);
         }
 
-        var response = new Response(
-            user.Id,
-            user.DisplayName!,
-            user.Email!,
-            user.ProfilePictureUrl
-        );
+        // Sign in the user immediately
+        await signInManager.SignInAsync(user, isPersistent: false);
 
+        var response = new Response(user.Id, user.DisplayName, user.Email, user.ProfilePictureUrl);
         return Results.Created($"/users/{user.Id}", response);
     }
 }
