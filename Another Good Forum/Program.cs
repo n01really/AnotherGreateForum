@@ -13,7 +13,13 @@ namespace Another_Great_Forum
             // Add services to the container.
             builder.Services.AddRazorPages();
 
+            // Configure HttpClient for API calls
             builder.Services.AddHttpClient<Pages.RegisterModel>();
+            builder.Services.AddHttpClient<Pages.LoginModel>();
+            builder.Services.AddHttpClient<Pages.AdminPageModel>(client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:7242");
+            });
 
             var app = builder.Build();
 
@@ -25,7 +31,6 @@ namespace Another_Great_Forum
             else
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -37,7 +42,6 @@ namespace Another_Great_Forum
 
             app.MapStaticAssets();
             app.MapRazorPages();
-
 
             app.Run();
         }

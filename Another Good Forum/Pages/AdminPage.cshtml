@@ -4,19 +4,48 @@
 @{
     ViewData["Title"] = "Admin Page";
 }
-<div class="text-center">
-    <h1 class="display-4">Admin Page</h1>
-    <p>Welcome to the Admin Page. Here you can manage users, roles, posts, forums, and comments.</p>
-    <div>
-        <h2>Manage Users</h2>
-        <p>Here you can view and manage all users in the system.</p>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger mt-4">
+        <h1 class="display-4">Hello @Model.UserName! this is the admin page</h1>
+        <p>We can see that you are not an admin Would you kindly FUCK OFF</p>
+        <h4>@Model.ErrorMessage</h4>
+        <p><a asp-page="/Index" class="btn btn-primary">Return to Home</a></p>
     </div>
-    <div>
-        <h2>Manage Roles</h2>
-        <p>Here you can assign or remove roles for users.</p>
+}
+else if (Model.IsAdmin)
+{
+    <div class="text-center">
+        <h1 class="display-4">Admin Page</h1>
+        <p class="lead">Welcome, @Model.UserName!</p>
+        <p>You have administrative privileges. Here you can manage users, roles, posts, forums, and comments.</p>
+        
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Manage Users</h2>
+                        <p class="card-text">View and manage all users in the system.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Manage Roles</h2>
+                        <p class="card-text">Assign or remove roles for users.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Manage Content</h2>
+                        <p class="card-text">Remove inappropriate posts and forums.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div>
-        <h2>Manage Posts and Forums</h2>
-        <p>Here you can remove inappropriate posts and forums.</p>
-    </div>
-</div>
+}
