@@ -11,38 +11,53 @@ public class UploadProfilePictureEndpoint : IEndpointMapper
     {
         app.MapPost("/users/profile-picture", HandleAsync)
            .WithName("UploadProfilePicture")
+           .Accepts<IFormFile>("multipart/form-data")
            .Produces<Response>(StatusCodes.Status200OK)
            .Produces(StatusCodes.Status401Unauthorized)
            .Produces(StatusCodes.Status404NotFound)
-           .Produces(StatusCodes.Status400BadRequest)
-           .Accepts<IFormFile>("multipart/form-data");
+           .Produces(StatusCodes.Status400BadRequest);
     }
 
     public record Response(string ProfilePictureUrl);
 
-    public async Task<IResult> HandleAsync(IFormFile file, UserManager<ApplicationUser> userManager, HttpContext http)
+    public async Task<IResult> HandleAsync(
+        IFormFile file,
+        UserManager<ApplicationUser> userManager,
+        IWebHostEnvironment env,
+        HttpContext http)
     {
         var userId = http.User.Identity?.Name;
-        if (userId == null)
-            return Results.Unauthorized();
+        if (userId == null) return Results.Unauthorized();
 
         var user = await userManager.FindByNameAsync(userId);
-        if (user == null)
-            return Results.NotFound();
+        if (user == null) return Results.NotFound();
 
         if (file == null || file.Length == 0)
             return Results.BadRequest("No file uploaded.");
 
-        // Example storage logic: store only file name; replace with real storage if needed
-        var fileName = $"{Guid.NewGuid()}_{file.FileName}";
-        user.ProfilePictureUrl = fileName;
+        // Optional: Validate file type
+        var allowedTypes = new[] { "image/jpeg", "image/png" };
+        if (!allowedTypes.Contains(file.ContentType))
+            return Results.BadRequest("Only JPG & PNG images are allowed.");
 
-        var result = await userManager.UpdateAsync(user);
-        if (!result.Succeeded)
+        // Create directory if missing
+        string uploadFolder = Path.Combine(env.WebRootPath, "profile-pictures");
+        if (!Directory.Exists(uploadFolder))
+            Directory.CreateDirectory(uploadFolder);
+
+        // Create unique filename
+        string fileName = $"{user.Id}_{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+        string filePath = Path.Combine(uploadFolder, fileName);
+
+        // Save to server
+        using (var stream = File.Create(filePath))
         {
-            var errors = result.Errors.Select(e => e.Description);
-            return Results.BadRequest(errors);
+            await file.CopyToAsync(stream);
         }
+
+        // Save the URL path to database
+        user.ProfilePictureUrl = $"/profile-pictures/{fileName}";
+        await userManager.UpdateAsync(user);
 
         return Results.Ok(new Response(user.ProfilePictureUrl));
     }
