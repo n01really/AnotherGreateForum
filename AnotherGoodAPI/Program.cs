@@ -30,7 +30,7 @@ namespace AnotherGoodAPI
                     policy.WithOrigins("https://localhost:7286", "http://localhost:5155")
                           .AllowAnyHeader()
                           .AllowAnyMethod()
-                          .AllowCredentials(); 
+                          .AllowCredentials();
                 });
             });
 

@@ -11,8 +11,16 @@ public class GetCommentsEndpoint : IEndpointMapper
     {
         app.MapGet("/comments/post/{postId:int}", HandleAsync)
            .WithName("GetComments")
-           .Produces(StatusCodes.Status200OK);
+           .Produces<List<Response>>(StatusCodes.Status200OK);
     }
+
+    public record Response(
+        int Id,
+        int PostId,
+        string Body,
+        string AuthorName,
+        DateTime CreatedAt
+    );
 
     public async Task<IResult> HandleAsync(int postId, ForumDbContext db)
     {
@@ -22,6 +30,14 @@ public class GetCommentsEndpoint : IEndpointMapper
             .OrderBy(c => c.CreatedAt)
             .ToListAsync();
 
-        return Results.Ok(comments);
+        var response = comments.Select(c => new Response(
+            c.Id,
+            c.PostId,
+            c.Body,
+            c.Author?.DisplayName ?? "Unknown",
+            c.CreatedAt
+        )).ToList();
+
+        return Results.Ok(response);
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace AnotherGoodAPI.Endpoints.Users;
 
@@ -11,17 +12,25 @@ public class LoginUserEndpoint : IEndpointMapper
     {
         app.MapPost("/users/login", HandleAsync)
            .WithName("LoginUser")
-           .Produces(StatusCodes.Status200OK)
-           .Produces(StatusCodes.Status401Unauthorized);
+           .Produces<Response>(StatusCodes.Status200OK)
+           .Produces(StatusCodes.Status401Unauthorized)
+           .Produces(StatusCodes.Status400BadRequest);
     }
 
-    public record Request(string UserName, string Password);
+    public record Request(
+        [Required, EmailAddress] string Email,
+        [Required] string Password
+    );
+
     public record Response(string Message);
 
     public async Task<IResult> HandleAsync(Request request, SignInManager<ApplicationUser> signInManager)
     {
+        if (request == null)
+            return Results.BadRequest("Request body is empty.");
+
         var result = await signInManager.PasswordSignInAsync(
-            request.UserName,
+            request.Email,      // Use Email consistently
             request.Password,
             isPersistent: false,
             lockoutOnFailure: false

@@ -11,7 +11,7 @@ public class LogoutUserEndpoint : IEndpointMapper
     {
         app.MapPost("/users/logout", HandleAsync)
            .WithName("LogoutUser")
-           .Produces(StatusCodes.Status200OK);
+           .Produces<Response>(StatusCodes.Status200OK);
     }
 
     public record Response(string Message);

@@ -23,7 +23,8 @@ public class DeletePostEndpoint : IEndpointMapper
         var isAdmin = http.User.IsInRole("Admin");
 
         var post = await db.Posts.FindAsync(id);
-        if (post == null) return Results.NotFound();
+        if (post == null)
+            return Results.NotFound();
 
         if (post.AuthorId != userId && !isAdmin)
             return Results.Forbid();

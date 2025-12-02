@@ -11,9 +11,11 @@ public class GetInboxEndpoint : IEndpointMapper
     {
         app.MapGet("/messages/inbox/{userId}", HandleAsync)
            .WithName("GetInbox")
-           .Produces(StatusCodes.Status200OK)
+           .Produces<List<Response>>(StatusCodes.Status200OK)
            .Produces(StatusCodes.Status403Forbidden);
     }
+
+    public record Response(int Id, string Body, string SenderId, string ReceiverId, DateTime SentAt, bool IsRead, int? ParentMessageId);
 
     public async Task<IResult> HandleAsync(string userId, ForumDbContext db, HttpContext http)
     {
@@ -27,6 +29,10 @@ public class GetInboxEndpoint : IEndpointMapper
             .OrderByDescending(m => m.SentAt)
             .ToListAsync();
 
-        return Results.Ok(messages);
+        var response = messages.Select(m => new Response(
+            m.Id, m.Body, m.SenderId, m.ReceiverId, m.SentAt, m.IsRead, m.ParentMessageId
+        )).ToList();
+
+        return Results.Ok(response);
     }
 }
