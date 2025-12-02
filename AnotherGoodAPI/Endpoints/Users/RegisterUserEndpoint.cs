@@ -1,8 +1,8 @@
 ﻿using AnotherGoodAPI.Models;
-using AnotherGoodAPI.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace AnotherGoodAPI.Endpoints.Users;
 
@@ -10,19 +10,26 @@ public class RegisterUserEndpoint : IEndpointMapper
 {
     public void MapEndpoint(WebApplication app)
     {
-        app.MapPost("/users/register", Handle)
+        app.MapPost("/users/register", HandleAsync)
            .WithTags("Users")
-           .Produces<UserDto>(StatusCodes.Status201Created)
+           .Produces<Response>(StatusCodes.Status201Created)
            .Produces(StatusCodes.Status400BadRequest);
     }
 
-    public record Request(string DisplayName, string Email, string Password);
+    public record Request(
+        [Required] string DisplayName,
+        [Required, EmailAddress] string Email,
+        [Required, MinLength(6)] string Password
+    );
+
     public record Response(string Id, string DisplayName, string Email, string? ProfilePictureUrl);
 
-    private async Task<IResult> Handle(Request request, UserManager<ApplicationUser> userManager)
+    private async Task<IResult> HandleAsync(Request request, UserManager<ApplicationUser> userManager)
     {
-        if (request == null)
-            return Results.BadRequest("Request body is empty.");
+        // Check if Email already exists
+        var existingUser = await userManager.FindByEmailAsync(request.Email);
+        if (existingUser != null)
+            return Results.BadRequest("A user with this email already exists.");
 
         var user = new ApplicationUser
         {
@@ -33,9 +40,18 @@ public class RegisterUserEndpoint : IEndpointMapper
 
         var result = await userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)
-            return Results.BadRequest(result.Errors);
+        {
+            var errors = result.Errors.Select(e => e.Description);
+            return Results.BadRequest(errors);
+        }
 
-        var response = new Response(user.Id, user.DisplayName, user.Email, user.ProfilePictureUrl);
+        var response = new Response(
+            user.Id,
+            user.DisplayName!,
+            user.Email!,
+            user.ProfilePictureUrl
+        );
+
         return Results.Created($"/users/{user.Id}", response);
     }
 }

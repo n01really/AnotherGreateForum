@@ -1,16 +1,15 @@
 ﻿using AnotherGoodAPI.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 
-namespace AnotherGoodAPI.Endpoints.Posts;
+namespace AnotherGoodAPI.Endpoints.Comments;
 
-public class DeletePostEndpoint : IEndpointMapper
+public class DeleteCommentEndpoint : IEndpointMapper
 {
     public void MapEndpoint(WebApplication app)
     {
-        app.MapDelete("/posts/{id:int}", HandleAsync)
-           .WithName("DeletePost")
+        app.MapDelete("/comments/{id:int}", HandleAsync)
+           .WithName("DeleteComment")
            .Produces(StatusCodes.Status204NoContent)
            .Produces(StatusCodes.Status401Unauthorized)
            .Produces(StatusCodes.Status403Forbidden)
@@ -20,16 +19,17 @@ public class DeletePostEndpoint : IEndpointMapper
     public async Task<IResult> HandleAsync(int id, ForumDbContext db, HttpContext http)
     {
         var userId = http.User.Identity?.Name;
-        var isAdmin = http.User.IsInRole("Admin");
+        if (userId == null)
+            return Results.Unauthorized();
 
-        var post = await db.Posts.FindAsync(id);
-        if (post == null)
+        var comment = await db.Comments.FindAsync(id);
+        if (comment == null)
             return Results.NotFound();
 
-        if (post.AuthorId != userId && !isAdmin)
+        if (comment.AuthorId != userId)
             return Results.Forbid();
 
-        db.Posts.Remove(post);
+        db.Comments.Remove(comment);
         await db.SaveChangesAsync();
 
         return Results.NoContent();
