@@ -1,30 +1,60 @@
-﻿@page
+﻿﻿@page
 @model Another_Great_Forum.Pages.RegisterModel
 @{
     ViewData["Title"] = "Register";
 }
 
 <div class="register-container">
-
     <h1>Register</h1>
+    <div id="register-message" class="text-danger"></div>
 
-    <form method="post">
-        <div class="mb-3">
-            <label asp-for="Input.DisplayName" class="form-label">Name</label>
-            <input asp-for="Input.DisplayName" class="form-control"/>
-        </div>
-
-        <div class="mb-3"> 
-            <label asp-for="Input.Email" class="form-label">Email</label>
-            <input asp-for="Input.Email" class="form-control" />
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="Input.Password" class="form-label">Password</label>
-            <input asp-for="Input.Password" class="form-control" />
-        </div>
-
-        <button type="submit" class="btn btn-primary">Sign Up</button>
-    </form>
-
+    <div class="mb-3">
+        <label class="form-label">Name</label>
+        <input id="displayName" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input id="email" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input id="password" type="password" class="form-control" />
+    </div>
+    <button id="register-btn" class="btn btn-primary">Sign Up</button>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById('register-btn').addEventListener('click', async () => {
+            const displayName = document.getElementById('displayName').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const resRegister = await fetch('https://localhost:7242/users/register', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ DisplayName: displayName, Email: email, Password: password })
+            });
+
+            if(!resRegister.ok){
+                document.getElementById('register-message').textContent = 'Registration failed';
+                return;
+            }
+
+            // Auto-login after register
+            const resLogin = await fetch('https://localhost:7242/users/login', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ UserName: email, Password: password })
+            });
+
+            if(resLogin.ok){
+                window.location.href = '@Url.Page("/Index")';
+            } else {
+                document.getElementById('register-message').textContent = 'Login after registration failed';
+            }
+        });
+    </script>
+}
