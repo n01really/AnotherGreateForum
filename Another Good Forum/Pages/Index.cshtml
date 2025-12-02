@@ -41,34 +41,33 @@
             }
         }
 
-        async function loadPosts(){
-            //Loading posts
-            try{
-                const postsResponse = await fetch("https://localhost:7242/posts", { credentials: 'include' })
+        async function loadPosts() {
+            try {
+                const postsResponse = await fetch("https://localhost:7242/posts", { credentials: 'include' });
                 const posts = await postsResponse.json();
                 const container = document.getElementById("post");
-                
-                posts.forEach(post =>{
-                    container.innerHTML = 
-                    `
-                     <div id="post">
-                       <div class="card">
-                         <div class="card-body">
-                           <h3 class="card-title">${post.Title}</h3>
-                           <p class="card-text">${post.Body}</p>
-                           <small class="card-footer">${post.CreatedAt}</small>
-                         </div>
-                      </div>
-                     </div>
+
+                // Clear container first
+                container.innerHTML = "";
+
+                posts.forEach(post => {
+                    // Append each post to the container
+                    container.innerHTML += `
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h3 class="card-title">${post.title}</h3>
+                                <p class="card-text">${post.body}</p>
+                                <small class="text-muted">${new Date(post.createdAt).toLocaleString()}</small>
+                            </div>
+                        </div>
                     `;
                 });
 
-                
-            } catch(err){
+            } catch(err) {
                 console.error(err);
             }
-
         }
+
         loadPosts();
         checkLogin();
     </script>

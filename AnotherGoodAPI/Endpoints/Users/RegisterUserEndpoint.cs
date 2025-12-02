@@ -1,5 +1,4 @@
 ﻿using AnotherGoodAPI.Models;
-using AnotherGoodAPI.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;

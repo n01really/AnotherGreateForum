@@ -1,4 +1,3 @@
-using AnotherGoodAPI.DTOs;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Another_Great_Forum.Pages

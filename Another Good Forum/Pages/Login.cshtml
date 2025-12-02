@@ -29,7 +29,7 @@
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ UserName: email, Password: password })
+                    body: JSON.stringify({ email: email, Password: password })
                 });
 
                 if(res.ok){
