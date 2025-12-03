@@ -7,7 +7,6 @@
 <div class="login-container">
     <h1>Login</h1>
     <div id="login-message" class="text-danger"></div>
-
     <div class="mb-3">
         <label class="form-label">Email</label>
         <input id="email" class="form-control" />
@@ -16,7 +15,6 @@
         <label class="form-label">Password</label>
         <input id="password" type="password" class="form-control" />
     </div>
-
     <button id="login-btn" type="button" class="btn btn-primary">Login</button>
 </div>
 
@@ -27,37 +25,19 @@
             const password = document.getElementById('password').value;
 
             try {
-                // Login request
                 const res = await fetch('https://localhost:7242/users/login', {
                     method: 'POST',
-                    credentials: 'include', // important for cookies
+                    credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ Email: email, Password: password })
                 });
 
-                if (!res.ok) {
+                if(res.ok){
+                    window.location.href = '@Url.Page("/Index")';
+                } else {
                     document.getElementById('login-message').textContent = 'Login failed';
-                    return;
                 }
-
-                // Check current user immediately to verify login
-                const meRes = await fetch('https://localhost:7242/users/me', {
-                    method: 'GET',
-                    credentials: 'include'
-                });
-
-                if (!meRes.ok) {
-                    document.getElementById('login-message').textContent = 'Login did not persist';
-                    return;
-                }
-
-                const user = await meRes.json();
-                console.log('Logged in user:', user);
-
-                // Redirect to index
-                window.location.href = '/';
-
-            } catch (err) {
+            } catch(err) {
                 console.error(err);
                 document.getElementById('login-message').textContent = 'Network error';
             }
