@@ -5,12 +5,12 @@ namespace Another_Great_Forum.Pages
 {
     public class AdminPageModel : PageModel
     {
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<AdminPageModel> _logger;
 
-        public AdminPageModel(HttpClient httpClient, ILogger<AdminPageModel> logger)
+        public AdminPageModel(IHttpClientFactory httpClientFactory, ILogger<AdminPageModel> logger)
         {
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
             _logger = logger;
         }
 
@@ -92,10 +92,19 @@ namespace Another_Great_Forum.Pages
         {
             try
             {
-                var response = await _httpClient.GetAsync("/categories");
+                var httpClient = _httpClientFactory.CreateClient(nameof(AdminPageModel));
+                _logger.LogInformation($"HttpClient BaseAddress: {httpClient.BaseAddress?.ToString() ?? "NULL"}");
+                _logger.LogInformation($"Attempting to call: {httpClient.BaseAddress}categories");
+                
+                var response = await httpClient.GetAsync("/categories");
                 if (response.IsSuccessStatusCode)
                 {
                     Categories = await response.Content.ReadFromJsonAsync<List<CategoryDto>>() ?? new();
+                    _logger.LogInformation($"Loaded {Categories.Count} categories");
+                }
+                else
+                {
+                    _logger.LogWarning($"Failed to load categories. Status: {response.StatusCode}");
                 }
             }
             catch (Exception ex)
@@ -108,18 +117,16 @@ namespace Another_Great_Forum.Pages
         {
             try
             {
-                // Note: You'll need to create a GetUsers endpoint in your API
-                // For now, we'll get users from posts
-                var response = await _httpClient.GetAsync("/posts");
+                var httpClient = _httpClientFactory.CreateClient(nameof(AdminPageModel));
+                var response = await httpClient.GetAsync("/users");
                 if (response.IsSuccessStatusCode)
                 {
-                    var posts = await response.Content.ReadFromJsonAsync<List<PostDto>>() ?? new();
-                    Users = posts
-                        .Where(p => p.Author != null)
-                        .Select(p => p.Author!)
-                        .GroupBy(u => u.Id)
-                        .Select(g => g.First())
-                        .ToList();
+                    Users = await response.Content.ReadFromJsonAsync<List<UserDto>>() ?? new();
+                    _logger.LogInformation($"Loaded {Users.Count} users");
+                }
+                else
+                {
+                    _logger.LogWarning($"Failed to load users. Status: {response.StatusCode}");
                 }
             }
             catch (Exception ex)
@@ -132,7 +139,8 @@ namespace Another_Great_Forum.Pages
         {
             try
             {
-                var response = await _httpClient.GetAsync("/posts");
+                var httpClient = _httpClientFactory.CreateClient(nameof(AdminPageModel));
+                var response = await httpClient.GetAsync("/posts");
                 if (response.IsSuccessStatusCode)
                 {
                     Posts = await response.Content.ReadFromJsonAsync<List<PostDto>>() ?? new();

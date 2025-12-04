@@ -13,12 +13,23 @@ namespace Another_Great_Forum
             // Add services to the container.
             builder.Services.AddRazorPages();
 
-            // Configure HttpClient for API calls
-            builder.Services.AddHttpClient<Pages.RegisterModel>();
-            builder.Services.AddHttpClient<Pages.LoginModel>();
-            builder.Services.AddHttpClient<Pages.AdminPageModel>(client =>
+            // Get API base URL from configuration
+            var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7286";
+
+            // Configure named HttpClients
+            builder.Services.AddHttpClient(nameof(Pages.RegisterModel), client =>
             {
-                client.BaseAddress = new Uri("https://localhost:7242");
+                client.BaseAddress = new Uri(apiBaseUrl);
+            });
+            
+            builder.Services.AddHttpClient(nameof(Pages.LoginModel), client =>
+            {
+                client.BaseAddress = new Uri(apiBaseUrl);
+            });
+            
+            builder.Services.AddHttpClient(nameof(Pages.AdminPageModel), client =>
+            {
+                client.BaseAddress = new Uri(apiBaseUrl);
             });
 
             var app = builder.Build();

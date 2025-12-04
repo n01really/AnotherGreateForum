@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
@@ -35,7 +34,7 @@ namespace Another_Great_Forum.Pages
         public async Task <IActionResult> OnPostAsync()
         {
             var requestBody = new {displayName = Input.DisplayName, email = Input.Email, password = Input.Password};
-            var response = await _httpClient.PostAsJsonAsync("https://localhost:7242/users/register", requestBody);
+            var response = await _httpClient.PostAsJsonAsync("/users/register", requestBody);
 
             if (response.IsSuccessStatusCode)
             {
