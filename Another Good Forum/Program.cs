@@ -13,6 +13,25 @@ namespace Another_Great_Forum
             // Add services for Razor Pages
             builder.Services.AddRazorPages();
 
+            // Get API base URL from configuration
+            var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7286";
+
+            // Configure named HttpClients
+            builder.Services.AddHttpClient(nameof(Pages.RegisterModel), client =>
+            {
+                client.BaseAddress = new Uri(apiBaseUrl);
+            });
+            
+            builder.Services.AddHttpClient(nameof(Pages.LoginModel), client =>
+            {
+                client.BaseAddress = new Uri(apiBaseUrl);
+            });
+            
+            builder.Services.AddHttpClient(nameof(Pages.AdminPageModel), client =>
+            {
+                client.BaseAddress = new Uri(apiBaseUrl);
+            });
+
             var app = builder.Build();
 
             // Configure middleware
