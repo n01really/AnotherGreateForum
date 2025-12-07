@@ -7,18 +7,24 @@
 <style>
     .user-avatar {
         position: absolute;
-        top: 12px; /* Adjust to fit navbar */
-        right: 15px; /* Adjust to fit navbar */
-        width: 35px; /* smaller circle */
-        height: 35px; /* smaller circle */
+        top: 12px;
+        right: 15px;
+        width: 35px;
+        height: 35px;
         border-radius: 50%;
         object-fit: cover;
         border: 2px solid #fff;
         box-shadow: 0 0 3px rgba(0,0,0,0.3);
         cursor: pointer;
-        display: none; /* hidden by default, shown if user logged in */
+        display: none;
     }
 </style>
+
+<!-- Messages button (hidden by default) -->
+<button id="messagesBtn" class="btn btn-outline-primary"
+        style="position:absolute; top:12px; right:60px; display:none;">
+    Messages
+</button>
 
 <img id="userAvatar" class="user-avatar" alt="Profile Picture" />
 
@@ -37,23 +43,29 @@
             if (!response.ok) return;
 
             const user = await response.json();
-            const img = document.getElementById("userAvatar");
 
+            // Show avatar
+            const img = document.getElementById("userAvatar");
             if (user.profilePictureUrl) {
                 img.src = `https://localhost:7242${user.profilePictureUrl}`;
             } else {
-                img.src = "/images/default-avatar.png"; // fallback default avatar
+                img.src = "/images/default-avatar.png";
             }
+            img.style.display = "block";
 
-            img.style.display = "block"; // show avatar
-
-            // Make avatar clickable to go to profile page
             img.addEventListener("click", () => {
                 window.location.href = '@Url.Page("/Profile")';
             });
 
+            // Show messages button
+            const msgBtn = document.getElementById("messagesBtn");
+            msgBtn.style.display = "block";
+            msgBtn.addEventListener("click", () => {
+                window.location.href = '@Url.Page("/Messages")';
+            });
+
         } catch (err) {
-            console.error("Failed to load user avatar:", err);
+            console.error("Failed to load user data:", err);
         }
     })();
 </script>
