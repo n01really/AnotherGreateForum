@@ -41,9 +41,8 @@ namespace AnotherGoodAPI.Endpoints
 
             // Messages
             new SendMessageEndpoint().MapEndpoint(app);
-            new MarkAsReadEndpoint().MapEndpoint(app);
-            new GetInboxEndpoint().MapEndpoint(app);
-            new DeleteMessageEndpoint().MapEndpoint(app);
+            new GetChatUsersEndpoint().MapEndpoint(app);
+            new GetChatWithUserEndpoint().MapEndpoint(app);
 
             // Likes
             new LikePostEndpoint().MapEndpoint(app);
