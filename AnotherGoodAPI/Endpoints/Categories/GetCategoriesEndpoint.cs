@@ -14,9 +14,15 @@ public class GetCategoriesEndpoint : IEndpointMapper
            .Produces(StatusCodes.Status200OK);
     }
 
+    public record CategoryDto(int Id, string Name, string Description);
+
     public async Task<IResult> HandleAsync(ForumDbContext db)
     {
-        var categories = await db.Categories.ToListAsync();
+        var categories = await db.Categories
+            .Select(c => new CategoryDto(c.Id, c.Name, c.Description))
+            .ToListAsync();
         return Results.Ok(categories);
     }
+
+
 }

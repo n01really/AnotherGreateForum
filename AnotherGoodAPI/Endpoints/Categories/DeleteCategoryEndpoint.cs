@@ -17,7 +17,8 @@ public class DeleteCategoryEndpoint : IEndpointMapper
     public async Task<IResult> HandleAsync(int id, ForumDbContext db)
     {
         var category = await db.Categories.FindAsync(id);
-        if (category == null) return Results.NotFound();
+        if (category == null)
+            return Results.NotFound($"Category with id {id} was not found.");
 
         db.Categories.Remove(category);
         await db.SaveChangesAsync();

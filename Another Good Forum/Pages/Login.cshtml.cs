@@ -1,15 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.ComponentModel.DataAnnotations;
 
 namespace Another_Great_Forum.Pages
 {
     public class LoginModel : PageModel
     {
-        private readonly HttpClient _httpClient;
-
-
-        public LoginModel(HttpClient httpClient)
+        public void OnGet()
         {
             _httpClient = httpClient;
         }

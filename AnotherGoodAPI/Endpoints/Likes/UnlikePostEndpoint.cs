@@ -1,35 +1,32 @@
 ﻿using AnotherGoodAPI.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
-namespace AnotherGoodAPI.Endpoints.Comments;
+namespace AnotherGoodAPI.Endpoints.Likes;
 
-public class DeleteCommentEndpoint : IEndpointMapper
+public class UnlikePostEndpoint : IEndpointMapper
 {
     public void MapEndpoint(WebApplication app)
     {
-        app.MapDelete("/comments/{id:int}", HandleAsync)
-           .WithName("DeleteComment")
+        app.MapDelete("/likes/post/{postId:int}", HandleAsync)
+           .WithName("UnlikePost")
            .Produces(StatusCodes.Status204NoContent)
            .Produces(StatusCodes.Status401Unauthorized)
-           .Produces(StatusCodes.Status403Forbidden)
            .Produces(StatusCodes.Status404NotFound);
     }
 
-    public async Task<IResult> HandleAsync(int id, ForumDbContext db, HttpContext http)
+    public async Task<IResult> HandleAsync(int postId, ForumDbContext db, HttpContext http)
     {
         var userId = http.User.Identity?.Name;
         if (userId == null)
             return Results.Unauthorized();
 
-        var comment = await db.Comments.FindAsync(id);
-        if (comment == null)
+        var like = await db.PostLikes.FirstOrDefaultAsync(pl => pl.PostId == postId && pl.UserId == userId);
+        if (like == null)
             return Results.NotFound();
 
-        if (comment.AuthorId != userId)
-            return Results.Forbid();
-
-        db.Comments.Remove(comment);
+        db.PostLikes.Remove(like);
         await db.SaveChangesAsync();
 
         return Results.NoContent();

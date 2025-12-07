@@ -11,11 +11,13 @@ public class MarkAsReadEndpoint : IEndpointMapper
     {
         app.MapPut("/messages/{messageId}/read", HandleAsync)
            .WithName("MarkAsRead")
-           .Produces(StatusCodes.Status200OK)
+           .Produces<Response>(StatusCodes.Status200OK)
            .Produces(StatusCodes.Status401Unauthorized)
            .Produces(StatusCodes.Status403Forbidden)
            .Produces(StatusCodes.Status404NotFound);
     }
+
+    public record Response(int Id, string Body, string SenderId, string ReceiverId, DateTime SentAt, bool IsRead, int? ParentMessageId);
 
     public async Task<IResult> HandleAsync(int messageId, ForumDbContext db, HttpContext http)
     {
@@ -30,6 +32,7 @@ public class MarkAsReadEndpoint : IEndpointMapper
         message.IsRead = true;
         await db.SaveChangesAsync();
 
-        return Results.Ok(message);
+        var response = new Response(message.Id, message.Body, message.SenderId, message.ReceiverId, message.SentAt, message.IsRead, message.ParentMessageId);
+        return Results.Ok(response);
     }
 }

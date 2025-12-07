@@ -1,6 +1,6 @@
-using Another_Great_Forum.Data;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Another_Great_Forum
 {
@@ -10,7 +10,7 @@ namespace Another_Great_Forum
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // Add services for Razor Pages
             builder.Services.AddRazorPages();
 
             // Get API base URL from configuration
@@ -34,10 +34,10 @@ namespace Another_Great_Forum
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // Configure middleware
             if (app.Environment.IsDevelopment())
             {
-                app.UseMigrationsEndPoint();
+                app.UseDeveloperExceptionPage();
             }
             else
             {
@@ -46,12 +46,11 @@ namespace Another_Great_Forum
             }
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles(); // serve CSS, JS, images
 
             app.UseRouting();
 
-            app.UseAuthorization();
-
-            app.MapStaticAssets();
+            // Map Razor Pages
             app.MapRazorPages();
 
             app.Run();

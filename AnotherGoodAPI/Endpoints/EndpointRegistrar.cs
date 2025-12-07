@@ -1,5 +1,6 @@
 ﻿using AnotherGoodAPI.Endpoints.Categories;
 using AnotherGoodAPI.Endpoints.Comments;
+using AnotherGoodAPI.Endpoints.Likes;
 using AnotherGoodAPI.Endpoints.Messages;
 using AnotherGoodAPI.Endpoints.Posts;
 using AnotherGoodAPI.Endpoints.Users;
@@ -43,6 +44,15 @@ namespace AnotherGoodAPI.Endpoints
             new MarkAsReadEndpoint().MapEndpoint(app);
             new GetInboxEndpoint().MapEndpoint(app);
             new DeleteMessageEndpoint().MapEndpoint(app);
+
+            // Likes
+            new LikePostEndpoint().MapEndpoint(app);
+            new UnlikePostEndpoint().MapEndpoint(app);
+            new GetPostLikesEndpoint().MapEndpoint(app);
+            new CheckUserLikeEndpoint().MapEndpoint(app);
+
+            // CurrentUser
+            new GetCurrentUserEndpoint().MapEndpoint(app);
         }
     }
 }
