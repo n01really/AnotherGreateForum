@@ -2,12 +2,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 
+
 namespace Another_Great_Forum.Pages
 {
     public class LoginModel : PageModel
     {
         private readonly HttpClient _httpClient;
-
 
         public LoginModel(HttpClient httpClient)
         {
@@ -35,7 +35,7 @@ namespace Another_Great_Forum.Pages
                 Password = Input.Password
             };
 
-            var response = await _httpClient.PostAsJsonAsync("https://localhost:7242/users/login", requestBody);
+            var response = await _httpClient.PostAsJsonAsync("/users/login", requestBody);
 
             if (response.IsSuccessStatusCode)
             {
