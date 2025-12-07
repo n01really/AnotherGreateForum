@@ -1,6 +1,7 @@
 ﻿using AnotherGoodAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace AnotherGoodAPI.Endpoints.Users;
 
@@ -8,49 +9,36 @@ public class GetCurrentUserEndpoint : IEndpointMapper
 {
     public void MapEndpoint(WebApplication app)
     {
-        app.MapGet("/users/me", async (HttpContext http, UserManager<ApplicationUser> userManager) =>
-        {
-            var userId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
-                return Results.Unauthorized();
-
-            var user = await userManager.FindByIdAsync(userId);
-
-            if (user == null)
-                return Results.NotFound();
-
-            // Return email and profile picture
-            return Results.Ok(new
-            {
-                id = user.Id,
-                name = user.DisplayName,
-                email = user.Email,
-                profilePictureUrl = user.ProfilePictureUrl
-            });
-        })
-        .WithName("CurrentUser")
-        .Produces(StatusCodes.Status200OK)
-        .Produces(StatusCodes.Status401Unauthorized)
-        .Produces(StatusCodes.Status404NotFound);
         app.MapGet("/users/current", HandleAsync)
-           .RequireAuthorization()
+           .RequireAuthorization() // must be logged in
            .WithName("GetCurrentUser")
            .Produces<Response>(StatusCodes.Status200OK)
            .Produces(StatusCodes.Status401Unauthorized);
     }
 
+    // Response including roles
     public record Response(string Id, string DisplayName, string Email, IList<string> Roles);
 
+    // The actual handler
     public async Task<IResult> HandleAsync(HttpContext context, UserManager<ApplicationUser> userManager)
     {
+        // Get the current user from the HttpContext
         var user = await userManager.GetUserAsync(context.User);
-        
+
         if (user == null)
             return Results.Unauthorized();
 
+        // Get roles (e.g., Admin, User)
         var roles = await userManager.GetRolesAsync(user);
-        var response = new Response(user.Id, user.DisplayName, user.Email ?? "", roles);
-        
+
+        // Build response
+        var response = new Response(
+            user.Id,
+            user.DisplayName,
+            user.Email ?? "",
+            roles
+        );
+
         return Results.Ok(response);
     }
 }
