@@ -4,7 +4,52 @@
     ViewData["Title"] = "Home page";
 }
 
+<style>
+    .user-avatar {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #fff;
+        box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        cursor: pointer;
+        display: none;
+    }
+</style>
+
+<img id="userAvatar" class="user-avatar" alt="Profile Picture" />
+
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
+
+<script>
+    (async () => {
+        try {
+            const response = await fetch("https://localhost:7107/users/me", {
+                method: "GET",
+                credentials: "include"
+            });
+
+            if (!response.ok) return;
+
+            const user = await response.json();
+            const img = document.getElementById("userAvatar");
+
+            if (user.profilePictureUrl) {
+                img.src = `https://localhost:7107${user.profilePictureUrl}`;
+            } else {
+                img.src = "/images/default-avatar.png"; // fallback default avatar
+            }
+
+            img.style.display = "block"; // show avatar
+
+        } catch (err) {
+            console.error("Failed to load user avatar:", err);
+        }
+    })();
+</script>
