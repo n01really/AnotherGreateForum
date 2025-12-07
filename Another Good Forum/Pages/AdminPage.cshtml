@@ -1,0 +1,110 @@
+﻿@* todo: Admin features: remove/ban users, manage roles, remove posts/forums, remove comments. *@
+@page
+@model Another_Great_Forum.Pages.AdminPageModel
+@{
+    ViewData["Title"] = "Admin Page";
+}
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger mt-4">
+        <h1 class="display-4">Hello @Model.UserName! this is the admin page</h1>
+        <p>We can see that you are not an admin Would you kindly FUCK OFF</p>
+        <h4>@Model.ErrorMessage</h4>
+        <p><a asp-page="/Index" class="btn btn-primary">Return to Home</a></p>
+    </div>
+}
+else if (Model.IsAdmin)
+{
+    <div class="text-center">
+        <h1 class="display-4">Admin Page</h1>
+        <p class="lead">Welcome, @Model.UserName!</p>
+        <p>You have administrative privileges. Here you can manage users, roles, posts, forums, and comments.</p>
+        
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Manage Categories</h2>
+                        <p class="card-text">View and add categories.</p>
+                        <div class="mt-3" style="max-height: 300px; overflow-y: auto;">
+                            @if (Model.Categories.Any())
+                            {
+                                <ul class="list-group list-group-flush text-start">
+                                    @foreach (var category in Model.Categories)
+                                    {
+                                        <li class="list-group-item">
+                                            <strong>@category.Name</strong>
+                                            <br />
+                                            <small class="text-muted">@category.Description</small>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No categories found.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Manage Roles</h2>
+                        <p class="card-text">Assign or remove roles for users.</p>
+                        <div class="mt-3" style="max-height: 300px; overflow-y: auto;">
+                            @if (Model.Users.Any())
+                            {
+                                <ul class="list-group list-group-flush text-start">
+                                    @foreach (var user in Model.Users)
+                                    {
+                                        <li class="list-group-item">
+                                            <strong>@user.DisplayName</strong>
+                                            <br />
+                                            <small class="text-muted">@user.Email</small>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No users found.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Manage Content</h2>
+                        <p class="card-text">Remove inappropriate posts and forums.</p>
+                        <div class="mt-3" style="max-height: 300px; overflow-y: auto;">
+                            @if (Model.Posts.Any())
+                            {
+                                <ul class="list-group list-group-flush text-start">
+                                    @foreach (var post in Model.Posts)
+                                    {
+                                        <li class="list-group-item">
+                                            <strong>@post.Title</strong>
+                                            <br />
+                                            <small class="text-muted">by @post.Author?.DisplayName</small>
+                                            <br />
+                                            <small class="text-muted">@post.CreatedAt.ToString("MMM dd, yyyy")</small>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No posts found.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
