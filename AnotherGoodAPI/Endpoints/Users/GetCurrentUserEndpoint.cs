@@ -8,6 +8,30 @@ public class GetCurrentUserEndpoint : IEndpointMapper
 {
     public void MapEndpoint(WebApplication app)
     {
+        app.MapGet("/users/me", async (HttpContext http, UserManager<ApplicationUser> userManager) =>
+        {
+            var userId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+                return Results.Unauthorized();
+
+            var user = await userManager.FindByIdAsync(userId);
+
+            if (user == null)
+                return Results.NotFound();
+
+            // Return email and profile picture
+            return Results.Ok(new
+            {
+                id = user.Id,
+                name = user.DisplayName,
+                email = user.Email,
+                profilePictureUrl = user.ProfilePictureUrl
+            });
+        })
+        .WithName("CurrentUser")
+        .Produces(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
         app.MapGet("/users/current", HandleAsync)
            .RequireAuthorization()
            .WithName("GetCurrentUser")

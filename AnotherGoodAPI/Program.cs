@@ -11,7 +11,7 @@ namespace AnotherGoodAPI
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            builder.Environment.WebRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
             // Add services
             builder.Services.AddDbContext<ForumDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -36,6 +36,7 @@ namespace AnotherGoodAPI
 
 
             var app = builder.Build();
+
 
             app.UseCors("FrontendPolicy");
 

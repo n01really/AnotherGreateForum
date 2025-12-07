@@ -7,16 +7,16 @@
 <style>
     .user-avatar {
         position: absolute;
-        top: 15px;
-        right: 20px;
-        width: 50px;
-        height: 50px;
+        top: 12px; /* Adjust to fit navbar */
+        right: 15px; /* Adjust to fit navbar */
+        width: 35px; /* smaller circle */
+        height: 35px; /* smaller circle */
         border-radius: 50%;
         object-fit: cover;
         border: 2px solid #fff;
-        box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        box-shadow: 0 0 3px rgba(0,0,0,0.3);
         cursor: pointer;
-        display: none;
+        display: none; /* hidden by default, shown if user logged in */
     }
 </style>
 
@@ -24,7 +24,6 @@
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
 
 <script>
@@ -41,12 +40,17 @@
             const img = document.getElementById("userAvatar");
 
             if (user.profilePictureUrl) {
-                img.src = `https://localhost:7107${user.profilePictureUrl}`;
+                img.src = `https://localhost:7242${user.profilePictureUrl}`;
             } else {
                 img.src = "/images/default-avatar.png"; // fallback default avatar
             }
 
             img.style.display = "block"; // show avatar
+
+            // Make avatar clickable to go to profile page
+            img.addEventListener("click", () => {
+                window.location.href = "/Profile";
+            });
 
         } catch (err) {
             console.error("Failed to load user avatar:", err);
