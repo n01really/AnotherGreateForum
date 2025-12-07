@@ -21,12 +21,21 @@ namespace AnotherGoodAPI
                 .AddEntityFrameworkStores<ForumDbContext>()
                 .AddDefaultTokenProviders();
 
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SameSite = SameSiteMode.None; 
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always; 
+            });
+
+
             builder.Services.AddAuthorization();
 
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("FrontendPolicy", policy =>
                 {
+
                     policy.WithOrigins("https://localhost:7286", "http://localhost:5155")
                           .AllowAnyHeader()
                           .AllowAnyMethod()

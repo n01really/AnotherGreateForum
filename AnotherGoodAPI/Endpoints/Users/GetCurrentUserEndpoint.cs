@@ -17,7 +17,7 @@ public class GetCurrentUserEndpoint : IEndpointMapper
     }
 
     // Response including roles
-    public record Response(string Id, string DisplayName, string Email, IList<string> Roles);
+    public record Response(string Id, string DisplayName, string Email, string? ProfilePictureUrl, IList<string> Roles);
 
     // The actual handler
     public async Task<IResult> HandleAsync(HttpContext context, UserManager<ApplicationUser> userManager)
@@ -36,6 +36,7 @@ public class GetCurrentUserEndpoint : IEndpointMapper
             user.Id,
             user.DisplayName,
             user.Email ?? "",
+            user.ProfilePictureUrl,
             roles
         );
 

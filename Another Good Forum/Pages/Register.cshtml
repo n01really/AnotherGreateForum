@@ -47,7 +47,7 @@
                 method: 'POST',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ UserName: email, Password: password })
+                body: JSON.stringify({ Email: email, Password: password })
             });
 
             if(resLogin.ok){

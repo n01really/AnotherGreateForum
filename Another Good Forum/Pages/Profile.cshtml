@@ -35,7 +35,7 @@
         // Load user info
         async function loadUser() {
             try {
-                const res = await fetch('https://localhost:7242/users/me', { credentials: 'include' });
+                const res = await fetch('https://localhost:7242/users/current', { credentials: 'include' });
                 if(!res.ok){
                     window.location.href = '/Login'; // redirect if not logged in
                     return;
