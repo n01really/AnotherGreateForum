@@ -1,7 +1,8 @@
 ﻿using AnotherGoodAPI.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace AnotherGoodAPI.Endpoints.Users;
 
@@ -22,28 +23,31 @@ public class UploadProfilePictureEndpoint : IEndpointMapper
 
     public async Task<IResult> HandleAsync(IFormFile file, UserManager<ApplicationUser> userManager, HttpContext http)
     {
-        var userId = http.User.Identity?.Name;
+        var userId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null)
             return Results.Unauthorized();
 
-        var user = await userManager.FindByNameAsync(userId);
+        var user = await userManager.FindByIdAsync(userId);
         if (user == null)
             return Results.NotFound();
 
         if (file == null || file.Length == 0)
             return Results.BadRequest("No file uploaded.");
 
-        // Example storage logic: store only file name; replace with real storage if needed
-        var fileName = $"{Guid.NewGuid()}_{file.FileName}";
-        user.ProfilePictureUrl = fileName;
+        var uploadsFolder = Path.Combine("wwwroot", "profile-pictures");
+        if (!Directory.Exists(uploadsFolder))
+            Directory.CreateDirectory(uploadsFolder);
 
-        var result = await userManager.UpdateAsync(user);
-        if (!result.Succeeded)
-        {
-            var errors = result.Errors.Select(e => e.Description);
-            return Results.BadRequest(errors);
-        }
+        var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+        var filePath = Path.Combine(uploadsFolder, fileName);
+
+        using var stream = new FileStream(filePath, FileMode.Create);
+        await file.CopyToAsync(stream);
+
+        user.ProfilePictureUrl = $"/profile-pictures/{fileName}";
+        await userManager.UpdateAsync(user);
 
         return Results.Ok(new Response(user.ProfilePictureUrl));
     }
+
 }
