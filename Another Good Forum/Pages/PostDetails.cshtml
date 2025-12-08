@@ -1,0 +1,50 @@
+﻿@page 
+@model Another_Great_Forum.Pages.PostDetailsModel
+@{
+    Layout = "_Layout";
+}
+
+<div class="page-container">
+    <div id="post"></div>
+    <a asp-page="Index">Back to home-page</a>
+</div>
+
+@section Scripts{
+    <script>
+        async function loadPostDetails(){
+
+            try{
+                const postResponse = await fetch(`https://localhost:7242/posts/${id}`, { credentials: 'include' })
+                const post = await postResponse.json();
+                const container = document.getElementById("post");
+
+                post.forEach(post =>{
+                    container.innerHTML += `
+                                <div class="card">
+                                <h2 class="card-title">${post.title}</h2>
+                                <p class="card-text linebreak">${post.body}</p>
+                                <p>${post.categoryName}<br>
+                                  By:${post.AuthorName}
+                                </p>
+                                <small class="card-date text-muted">${new Date(post.createdAt).toLocaleString()}</small>
+                                </div>`;
+                    container.appendChild(card);
+                })
+
+                
+
+
+            }
+            catch(err){
+                console.error(err);
+                alert("Error! Couldn't load post..");
+            }
+
+
+
+        }
+
+        loadPostDetails();
+
+    </script>
+}

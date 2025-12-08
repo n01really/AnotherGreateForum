@@ -94,6 +94,7 @@ body {
     width: 100%;
     box-sizing: border-box;
     flex: 0 0 auto;
+    
 }
 
 .card-text{
@@ -101,3 +102,8 @@ body {
     flex: 1 1 auto;
 }
 
+.card-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+}

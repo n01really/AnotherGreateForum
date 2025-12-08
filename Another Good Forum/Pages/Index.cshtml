@@ -7,6 +7,7 @@
 <div class="text-center">
     <h2 class="display-5">Welcome to AnotherGreatForum!</h2>
     <div id="login-status" class="mt-3"></div>
+    <br>
 </div>
 
 <div class="page-container">
@@ -25,8 +26,7 @@
 
                 if (res.ok) {
                     const data = await res.json();
-                    div.innerHTML = `You are logged in! Your user ID: ${data.id} 
-                                     <a class="btn btn-primary" href="@Url.Page("/Shared/CreateForum")">Create Post</a>`;
+                    div.innerHTML = `Welcome back ${data.name}!`;
                 } else {
                     div.innerHTML = `You are not logged in.`;
                 }
@@ -43,13 +43,15 @@
                 const container = document.getElementById("post");
                 
                 posts.forEach(post => {
-                    const card = document.createElement("div");
-                    card.classList.add("card");
-                    card.innerHTML += `
+                    container.innerHTML += `
+                                <a href="Posts/PostDetails?id=${post.id}" class="card-link">
+                                <div class = "card">
                                 <h4 class="card-title">${post.title}</h4>
                                 <p class="card-text">${post.body}</p>
-                                <small class="card-date text-muted">${new Date(post.createdAt).toLocaleString()}</small>`;
-                    container.appendChild(card);
+                                <small class="card-date text-muted">${new Date(post.createdAt).toLocaleString()}</small>
+                                </div>
+                                </a>`;
+
                 });
 
             } catch(err) {
