@@ -23,8 +23,10 @@
     </div>
 </div>
 
+@inject IConfiguration Configuration
 @section Scripts {
     <script>
+        window.API_BASE_URL = "@Configuration["ApiSettings:BaseUrl"]";
         const profilePic = document.getElementById('profile-picture');
         const fileInput = document.getElementById('profile-picture-input');
         const emailDisplay = document.getElementById('email-display');
@@ -35,7 +37,7 @@
         // Load user info
         async function loadUser() {
             try {
-                const res = await fetch('https://localhost:7242/users/current', { credentials: 'include' });
+                const res = await fetch(`${window.API_BASE_URL}/users/current`, { credentials: 'include' });
                 if(!res.ok){
                     window.location.href = '/Login'; // redirect if not logged in
                     return;
@@ -43,7 +45,7 @@
                 const data = await res.json();
                 emailDisplay.textContent = data.email;
                 profilePic.src = data.profilePictureUrl
-                                 ? `https://localhost:7242${data.profilePictureUrl}`
+                                 ? `${window.API_BASE_URL}${data.profilePictureUrl}`
                                  : '/images/default-profile.png';
             } catch(err){
                 console.error('Failed to load user:', err);
@@ -73,7 +75,7 @@
                 const formData = new FormData();
                 formData.append('file', currentFile);
 
-                const res = await fetch('https://localhost:7242/users/profile-picture', {
+                const res = await fetch(`${window.API_BASE_URL}/users/profile-picture`, {
                     method: 'POST',
                     credentials: 'include',
                     body: formData
@@ -85,7 +87,7 @@
                 }
             } else {
                 // If deleted, call endpoint to remove picture
-                await fetch('https://localhost:7242/users/profile-picture/delete', {
+                await fetch(`${window.API_BASE_URL}/users/profile-picture/delete`, {
                     method: 'POST',
                     credentials: 'include'
                 });
@@ -97,7 +99,7 @@
         // Logout button
         logoutBtn.addEventListener('click', async () => {
             try {
-                const res = await fetch('https://localhost:7242/users/logout', {
+                const res = await fetch(`${window.API_BASE_URL}/users/logout`, {
                     method: 'POST',
                     credentials: 'include'
                 });

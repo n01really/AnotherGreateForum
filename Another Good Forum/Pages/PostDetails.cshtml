@@ -6,13 +6,15 @@
 <h1>Post Details</h1>
 <div id="post"></div>
 
+@inject IConfiguration Configuration
 @section Scripts{
     <script>
+        window.API_BASE_URL = "@Configuration["ApiSettings:BaseUrl"]";
         async function loadPostDetails(){
             const pathParts = window.location.pathname.split('/');
             const id = pathParts[pathParts.length - 1];
             try{
-                const postResponse = await fetch(`https://localhost:7242/posts/${id}`, { credentials: 'include' })
+                const postResponse = await fetch(`${window.API_BASE_URL}/posts/${id}`, { credentials: 'include' })
                 const post = await postResponse.json();
                 const container = document.getElementById("post");
 

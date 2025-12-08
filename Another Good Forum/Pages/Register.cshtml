@@ -23,14 +23,16 @@
     <button id="register-btn" class="btn btn-primary">Sign Up</button>
 </div>
 
+@inject IConfiguration Configuration
 @section Scripts {
     <script>
+        window.API_BASE_URL = "@Configuration["ApiSettings:BaseUrl"]";
         document.getElementById('register-btn').addEventListener('click', async () => {
             const displayName = document.getElementById('displayName').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            const resRegister = await fetch('https://localhost:7242/users/register', {
+            const resRegister = await fetch(`${window.API_BASE_URL}/users/register`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
@@ -43,7 +45,7 @@
             }
 
             // Auto-login after register
-            const resLogin = await fetch('https://localhost:7242/users/login', {
+            const resLogin = await fetch(`${window.API_BASE_URL}/users/login`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },

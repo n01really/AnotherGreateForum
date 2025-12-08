@@ -31,18 +31,20 @@
     <button type="submit" class="btn btn-primary">Save Forum</button>
 </form>
 
+@inject IConfiguration Configuration
 @section Scripts {
     <script>
+        window.API_BASE_URL = "@Configuration["ApiSettings:BaseUrl"]";
         async function loadCategories() {
             try {
-                const meResponse = await fetch('https://localhost:7242/users/current', { credentials: 'include' });
+                const meResponse = await fetch(`${window.API_BASE_URL}/users/current`, { credentials: 'include' });
                 if (!meResponse.ok) {
                     document.getElementById('loginNotice').style.display = 'block';
                     return;
                 }
 
                 document.getElementById('createForumForm').style.display = 'block';
-                const categoriesResponse = await fetch('https://localhost:7242/categories', { credentials: 'include' });
+                const categoriesResponse = await fetch(`${window.API_BASE_URL}/categories`, { credentials: 'include' });
                 const categories = await categoriesResponse.json();
                 const select = document.getElementById('category');
 
@@ -70,7 +72,7 @@
             }
 
             try {
-                const postResponse = await fetch('https://localhost:7242/posts', {
+                const postResponse = await fetch(`${window.API_BASE_URL}/posts`, {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
