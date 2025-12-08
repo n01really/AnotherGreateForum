@@ -105,16 +105,18 @@
     </div>
 </div>
 
+@inject IConfiguration Configuration
 @section Scripts {
+
     <script>
-        const apiBase = 'https://localhost:7242';
+        window.API_BASE_URL = "@Configuration["ApiSettings:BaseUrl"]";
         let currentUser;
         let selectedUserId = null;
         let lastMessages = [];
 
         async function loadCurrentUser() {
             try {
-                const res = await fetch(`${apiBase}/users/current`, { credentials: 'include' });
+                const res = await fetch(`${window.API_BASE_URL}/users/current`, { credentials: 'include' });
                 if(!res.ok){ document.body.innerHTML = "<p>Please log in to view messages.</p>"; return; }
                 currentUser = await res.json();
                 loadUsersList();
@@ -123,7 +125,7 @@
 
         async function loadUsersList() {
             try {
-                const res = await fetch(`${apiBase}/messages/users`, { credentials: 'include' });
+                const res = await fetch(`${window.API_BASE_URL}/messages/users`, { credentials: 'include' });
                 const users = await res.json();
                 const chatUsersDiv = document.getElementById('chatUsersList');
 
@@ -146,7 +148,7 @@
             const chatBox = document.getElementById('chatBox');
 
             try {
-                const res = await fetch(`${apiBase}/messages/chat/${selectedUserId}`, { credentials: 'include' });
+                const res = await fetch(`${window.API_BASE_URL}/messages/chat/${selectedUserId}`, { credentials: 'include' });
                 const messages = await res.json();
 
                 // Only update if there are new messages
@@ -178,7 +180,7 @@
             if(!body) return;
 
             try {
-                const res = await fetch(`${apiBase}/messages`, {
+                const res = await fetch(`${window.API_BASE_URL}/messages`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
@@ -206,7 +208,7 @@
             if(!receiver || !body) return;
 
             try {
-                const usersRes = await fetch(`${apiBase}/users`, { credentials: 'include' });
+                const usersRes = await fetch(`${window.API_BASE_URL}/users`, { credentials: 'include' });
                 const allUsers = await usersRes.json();
                 const receiverUser = allUsers.find(u => u.displayName.toLowerCase() === receiver.toLowerCase());
                 if(!receiverUser){
@@ -216,7 +218,7 @@
                     return;
                 }
 
-                const res = await fetch(`${apiBase}/messages`, {
+                const res = await fetch(`${window.API_BASE_URL}/messages`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',

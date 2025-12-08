@@ -22,17 +22,19 @@
     <div class="card-container" id="post"></div>
 </div>
 
+@inject IConfiguration Configuration
 <script>
+    window.API_BASE_URL = "@Configuration["ApiSettings:BaseUrl"]";
     async function checkLogin() {
             try {
-                const res = await fetch('https://localhost:7242/users/current', {
+                const res = await fetch(`${window.API_BASE_URL}/users/current`, {
                     credentials: 'include'
                 });
                 const div = document.getElementById('login-status');
 
                 if (res.ok) {
                     const data = await res.json();
-                    div.innerHTML = `Welcome back ${data.name}!`;
+                    div.innerHTML = `Welcome ${data.displayName}!`;
                 } else {
                     div.innerHTML = `You are not logged in.`;
                 }
@@ -43,7 +45,7 @@
     }
     async function loadPosts() {
             try {
-                const postsResponse = await fetch("https://localhost:7242/posts", { credentials: 'include' });
+                const postsResponse = await fetch(`${window.API_BASE_URL}/posts`, { credentials: 'include' });
                 const posts = await postsResponse.json();
                 const container = document.getElementById("post");
 
@@ -67,7 +69,7 @@
 
     (async () => {
         try {
-            const response = await fetch("https://localhost:7242/users/current", {
+            const response = await fetch(`${window.API_BASE_URL}/users/current`, {
                 method: "GET",
                 credentials: "include"
             });
