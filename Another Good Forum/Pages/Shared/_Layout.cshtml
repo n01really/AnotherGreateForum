@@ -4,7 +4,6 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Another_Great_Forum</title>
-    <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
@@ -13,8 +12,8 @@
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark border-bottom box-shadow mb-3">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">Another_Great_Forum</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
@@ -31,24 +30,28 @@
                          <li class="nav-item">
                             <a class="nav-link text-light" asp-area="" asp-page="/PostDetails">Post Details</a>
                         </li>
-                    </ul>
-                    <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-page="/Register">Register</a>
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-page="/Login">Login</a>
+                        <li class="nav-item" id="registerNav">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Register">Register</a>
                         </li>
-
+                        <li class="nav-item" id="loginNav">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Login">Login</a>
+                        </li>
+                        <li class="nav-item" id="adminNav">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/AdminPage">Admin</a>
+                        </li>
                     </ul>
 
                 </div>
             </div>
         </nav>
     </header>
+
     <div class="container">
         <main role="main" class="pb-3">
-            @RenderBody()
+            @RenderBody() <!-- Page content goes here -->
         </main>
     </div>
 
@@ -61,6 +64,40 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        (async () => {
+            try {
+                const res = await fetch("https://localhost:7242/users/current", {
+                    credentials: "include"
+                });
+
+                if (!res.ok) {
+                    // Not logged in → show Register/Login, hide Admin
+                    document.getElementById("registerNav").style.display = "block";
+                    document.getElementById("loginNav").style.display = "block";
+                    document.getElementById("adminNav").style.display = "none";
+                    return;
+                }
+
+                const user = await res.json();
+
+                // Logged in → hide Register/Login
+                document.getElementById("registerNav").style.display = "none";
+                document.getElementById("loginNav").style.display = "none";
+
+                // Show Admin link only if user has "Admin" role
+                if (user.roles.includes("Admin")) {
+                    document.getElementById("adminNav").style.display = "block";
+                } else {
+                    document.getElementById("adminNav").style.display = "none";
+                }
+
+            } catch(err) {
+                console.error("Failed to load user info:", err);
+            }
+        })();
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

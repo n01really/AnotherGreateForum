@@ -2,7 +2,7 @@
 using AnotherGoodAPI.Endpoints.Comments;
 using AnotherGoodAPI.Endpoints.Likes;
 using AnotherGoodAPI.Endpoints.Messages;
-﻿using AnotherGoodAPI.Endpoints.Posts;
+using AnotherGoodAPI.Endpoints.Posts;
 using AnotherGoodAPI.Endpoints.Users;
 using Microsoft.AspNetCore.Builder;
 
@@ -17,6 +17,7 @@ namespace AnotherGoodAPI.Endpoints
             new LoginUserEndpoint().MapEndpoint(app);
             new LogoutUserEndpoint().MapEndpoint(app);
             new UploadProfilePictureEndpoint().MapEndpoint(app);
+            new GetAllUsersEndpoint().MapEndpoint(app);
 
             // Categories
             new CreateCategoryEndpoint().MapEndpoint(app);
@@ -40,9 +41,8 @@ namespace AnotherGoodAPI.Endpoints
 
             // Messages
             new SendMessageEndpoint().MapEndpoint(app);
-            new MarkAsReadEndpoint().MapEndpoint(app);
-            new GetInboxEndpoint().MapEndpoint(app);
-            new DeleteMessageEndpoint().MapEndpoint(app);
+            new GetChatUsersEndpoint().MapEndpoint(app);
+            new GetChatWithUserEndpoint().MapEndpoint(app);
 
             // Likes
             new LikePostEndpoint().MapEndpoint(app);

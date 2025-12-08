@@ -1,7 +1,9 @@
-﻿using AnotherGoodAPI.Models;
-using Microsoft.AspNetCore.Identity;
+using AnotherGoodAPI.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace AnotherGoodAPI.Endpoints.Users;
 
@@ -11,39 +13,61 @@ public class UploadProfilePictureEndpoint : IEndpointMapper
     {
         app.MapPost("/users/profile-picture", HandleAsync)
            .WithName("UploadProfilePicture")
+           .Accepts<IFormFile>("multipart/form-data")
            .Produces<Response>(StatusCodes.Status200OK)
            .Produces(StatusCodes.Status401Unauthorized)
            .Produces(StatusCodes.Status404NotFound)
            .Produces(StatusCodes.Status400BadRequest)
-           .Accepts<IFormFile>("multipart/form-data");
+           .DisableAntiforgery();
     }
 
     public record Response(string ProfilePictureUrl);
 
-    public async Task<IResult> HandleAsync(IFormFile file, UserManager<ApplicationUser> userManager, HttpContext http)
+    public async Task<IResult> HandleAsync(
+        [FromForm(Name = "file")] IFormFile file,
+        UserManager<ApplicationUser> userManager,
+        IWebHostEnvironment env,
+        HttpContext http)
     {
-        var userId = http.User.Identity?.Name;
+        var userId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null)
             return Results.Unauthorized();
 
-        var user = await userManager.FindByNameAsync(userId);
+        var user = await userManager.FindByIdAsync(userId);
         if (user == null)
             return Results.NotFound();
 
         if (file == null || file.Length == 0)
             return Results.BadRequest("No file uploaded.");
 
-        // Example storage logic: store only file name; replace with real storage if needed
-        var fileName = $"{Guid.NewGuid()}_{file.FileName}";
-        user.ProfilePictureUrl = fileName;
+        // Validate file type
+        var allowedTypes = new[] { "image/jpeg", "image/png" }; // "image/jpg" is not needed
+        if (!allowedTypes.Contains(file.ContentType))
+            return Results.BadRequest("Only JPG & PNG images are allowed.");
 
-        var result = await userManager.UpdateAsync(user);
-        if (!result.Succeeded)
+        // ✅ Ensure WebRootPath is set
+        if (string.IsNullOrEmpty(env.WebRootPath))
+            return Results.Problem("Web root path is not configured.");
+
+        string uploadFolder = Path.Combine(env.WebRootPath, "profile-pictures");
+
+        // Ensure folder exists
+        if (!Directory.Exists(uploadFolder))
+            Directory.CreateDirectory(uploadFolder);
+
+        string fileName = $"{user.Id}_{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+        string filePath = Path.Combine(uploadFolder, fileName);
+
+        // Save file
+        using (var stream = File.Create(filePath))
         {
-            var errors = result.Errors.Select(e => e.Description);
-            return Results.BadRequest(errors);
+            await file.CopyToAsync(stream);
         }
 
-        return Results.Ok(new Response(user.ProfilePictureUrl));
+        // Update user's profile picture URL
+        user.ProfilePictureUrl = $"/profile-pictures/{fileName}";
+        await userManager.UpdateAsync(user);
+
+        return Results.Ok(new { profilePictureUrl = user.ProfilePictureUrl });
     }
 }

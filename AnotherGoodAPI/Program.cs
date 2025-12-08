@@ -10,8 +10,9 @@ namespace AnotherGoodAPI
     {
         public static void Main(string[] args)
         {
+            
             var builder = WebApplication.CreateBuilder(args);
-
+            builder.Environment.WebRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
             // Add services
             builder.Services.AddDbContext<ForumDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -21,12 +22,21 @@ namespace AnotherGoodAPI
                 .AddEntityFrameworkStores<ForumDbContext>()
                 .AddDefaultTokenProviders();
 
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SameSite = SameSiteMode.None; 
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always; 
+            });
+
+
             builder.Services.AddAuthorization();
 
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("FrontendPolicy", policy =>
                 {
+
                     policy.WithOrigins("https://localhost:7286", "http://localhost:5155")
                           .AllowAnyHeader()
                           .AllowAnyMethod()
@@ -36,6 +46,7 @@ namespace AnotherGoodAPI
 
 
             var app = builder.Build();
+
 
             app.UseCors("FrontendPolicy");
 

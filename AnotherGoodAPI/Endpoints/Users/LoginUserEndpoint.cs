@@ -32,7 +32,7 @@ public class LoginUserEndpoint : IEndpointMapper
         var result = await signInManager.PasswordSignInAsync(
             request.Email,      // Use Email consistently
             request.Password,
-            isPersistent: false,
+            isPersistent: true,
             lockoutOnFailure: false
         );
 

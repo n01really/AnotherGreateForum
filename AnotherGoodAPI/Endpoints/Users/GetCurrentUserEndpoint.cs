@@ -1,6 +1,5 @@
 ﻿using AnotherGoodAPI.Models;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
@@ -10,17 +9,37 @@ public class GetCurrentUserEndpoint : IEndpointMapper
 {
     public void MapEndpoint(WebApplication app)
     {
-        app.MapGet("/users/me", async (HttpContext http, UserManager<ApplicationUser> userManager) =>
-        {
-            var userId = http.User.FindFirstValue(ClaimTypes.NameIdentifier); // ✅ get actual user ID
-            if (userId == null)
-                return Results.Unauthorized();
+        app.MapGet("/users/current", HandleAsync)
+           .RequireAuthorization() // must be logged in
+           .WithName("GetCurrentUser")
+           .Produces<Response>(StatusCodes.Status200OK)
+           .Produces(StatusCodes.Status401Unauthorized);
+    }
 
-            var user = await userManager.FindByIdAsync(userId);
-            return Results.Ok(new { id = user.Id, name = user.DisplayName });
-        })
-        .WithName("CurrentUser")
-        .Produces(StatusCodes.Status200OK)
-        .Produces(StatusCodes.Status401Unauthorized);
+    // Response including roles
+    public record Response(string Id, string DisplayName, string Email, string? ProfilePictureUrl, IList<string> Roles);
+
+    // The actual handler
+    public async Task<IResult> HandleAsync(HttpContext context, UserManager<ApplicationUser> userManager)
+    {
+        // Get the current user from the HttpContext
+        var user = await userManager.GetUserAsync(context.User);
+
+        if (user == null)
+            return Results.Unauthorized();
+
+        // Get roles (e.g., Admin, User)
+        var roles = await userManager.GetRolesAsync(user);
+
+        // Build response
+        var response = new Response(
+            user.Id,
+            user.DisplayName,
+            user.Email ?? "",
+            user.ProfilePictureUrl,
+            roles
+        );
+
+        return Results.Ok(response);
     }
 }

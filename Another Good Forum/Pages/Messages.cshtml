@@ -1,0 +1,239 @@
+﻿@page
+@model Another_Great_Forum.Pages.MessagesModel
+@{
+    ViewData["Title"] = "Messages";
+}
+
+<style>
+    .chat-user {
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+        cursor: pointer;
+    }
+
+        .chat-user:hover {
+            background-color: #f0f0f0;
+        }
+
+    .chat-box {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+        height: 400px;
+        overflow-y: auto;
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .message {
+        padding: 5px 10px;
+        border-radius: 15px;
+        max-width: 70%;
+        word-wrap: break-word;
+    }
+
+        .message.sent {
+            align-self: flex-end;
+            background-color: #d1e7dd;
+        }
+
+        .message.received {
+            align-self: flex-start;
+            background-color: #f8d7da;
+        }
+
+    .new-message-btn {
+        margin-bottom: 15px;
+    }
+
+    .chat-container {
+        display: flex;
+    }
+
+    .chat-users-list {
+        width: 200px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-right: 10px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .chat-window {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+</style>
+
+<div class="text-center mt-3">
+    <button class="btn btn-primary new-message-btn" id="newMessageBtn">New Message</button>
+</div>
+
+<div class="chat-container">
+    <div class="chat-users-list" id="chatUsersList">
+        Loading users...
+    </div>
+    <div class="chat-window">
+        <div class="chat-box" id="chatBox">
+            Select a user to start chatting.
+        </div>
+        <textarea id="chatInput" class="form-control" placeholder="Type a message..." style="margin-top:5px;"></textarea>
+        <button class="btn btn-success mt-2" id="sendChatBtn">Send</button>
+    </div>
+</div>
+
+<!-- New Message Modal -->
+<div class="modal fade" id="newMessageModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">New Message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="receiverUsername" class="form-control mb-2" placeholder="Recipient Username" />
+                <textarea id="messageBody" class="form-control" placeholder="Write your message"></textarea>
+                <div id="newMessageError" class="text-danger mt-2" style="display:none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="sendMessageBtn" class="btn btn-primary">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const apiBase = 'https://localhost:7242';
+        let currentUser;
+        let selectedUserId = null;
+        let lastMessages = [];
+
+        async function loadCurrentUser() {
+            try {
+                const res = await fetch(`${apiBase}/users/current`, { credentials: 'include' });
+                if(!res.ok){ document.body.innerHTML = "<p>Please log in to view messages.</p>"; return; }
+                currentUser = await res.json();
+                loadUsersList();
+            } catch(err){ console.error(err); }
+        }
+
+        async function loadUsersList() {
+            try {
+                const res = await fetch(`${apiBase}/messages/users`, { credentials: 'include' });
+                const users = await res.json();
+                const chatUsersDiv = document.getElementById('chatUsersList');
+
+                if(users.length === 0){
+                    chatUsersDiv.innerHTML = "No chats yet. Use 'New Message' to start chatting.";
+                    return;
+                }
+
+                chatUsersDiv.innerHTML = users.map(u => `
+                    <div class="chat-user" onclick="selectUser('${u.id}', '${u.displayName}')">${u.displayName}</div>
+                `).join('');
+            } catch(err){
+                console.error(err);
+                document.getElementById('chatUsersList').innerHTML = "Failed to load users.";
+            }
+        }
+
+        async function loadChat() {
+            if(!selectedUserId) return;
+            const chatBox = document.getElementById('chatBox');
+
+            try {
+                const res = await fetch(`${apiBase}/messages/chat/${selectedUserId}`, { credentials: 'include' });
+                const messages = await res.json();
+
+                // Only update if there are new messages
+                if(JSON.stringify(messages) !== JSON.stringify(lastMessages)) {
+                    chatBox.innerHTML = '';
+                    for(const m of messages){
+                        const msgDiv = document.createElement('div');
+                        msgDiv.className = 'message ' + (m.senderId === currentUser.id ? 'sent' : 'received');
+                        msgDiv.textContent = m.body;
+                        chatBox.appendChild(msgDiv);
+                    }
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                    lastMessages = messages;
+                }
+            } catch(err){
+                console.error(err);
+            }
+        }
+
+        async function selectUser(userId, displayName){
+            selectedUserId = userId;
+            lastMessages = [];
+            await loadChat();
+        }
+
+        document.getElementById('sendChatBtn').addEventListener('click', async () => {
+            if(!selectedUserId) return alert("Select a user first.");
+            const body = document.getElementById('chatInput').value.trim();
+            if(!body) return;
+
+            try {
+                const res = await fetch(`${apiBase}/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ receiverId: selectedUserId, body })
+                });
+                if(res.ok){
+                    document.getElementById('chatInput').value = '';
+                    await loadChat();
+                    loadUsersList();
+                } else alert("Failed to send message.");
+            } catch(err){ console.error(err); alert("Error sending message."); }
+        });
+
+        const newMessageModal = new bootstrap.Modal(document.getElementById('newMessageModal'));
+        document.getElementById('newMessageBtn').addEventListener('click', () => {
+            document.getElementById('receiverUsername').value = '';
+            document.getElementById('messageBody').value = '';
+            document.getElementById('newMessageError').style.display = 'none';
+            newMessageModal.show();
+        });
+
+        document.getElementById('sendMessageBtn').addEventListener('click', async () => {
+            const receiver = document.getElementById('receiverUsername').value.trim();
+            const body = document.getElementById('messageBody').value.trim();
+            if(!receiver || !body) return;
+
+            try {
+                const usersRes = await fetch(`${apiBase}/users`, { credentials: 'include' });
+                const allUsers = await usersRes.json();
+                const receiverUser = allUsers.find(u => u.displayName.toLowerCase() === receiver.toLowerCase());
+                if(!receiverUser){
+                    const errorDiv = document.getElementById('newMessageError');
+                    errorDiv.textContent = "No user found with that username.";
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                const res = await fetch(`${apiBase}/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ receiverId: receiverUser.id, body })
+                });
+
+                if(res.ok){
+                    newMessageModal.hide();
+                    loadUsersList();
+                    selectUser(receiverUser.id);
+                } else alert("Failed to send message.");
+            } catch(err){ console.error(err); alert("Error sending message."); }
+        });
+
+        loadCurrentUser();
+
+        // Poll chat every 2 seconds
+        setInterval(loadChat, 2000);
+    </script>
+}

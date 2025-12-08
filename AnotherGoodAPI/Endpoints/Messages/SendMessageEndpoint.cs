@@ -2,6 +2,7 @@
 using AnotherGoodAPI.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
@@ -26,20 +27,23 @@ public class SendMessageEndpoint : IEndpointMapper
 
     public record Response(int Id, string Body, string SenderId, string ReceiverId, DateTime SentAt, bool IsRead, int? ParentMessageId);
 
-    public async Task<IResult> HandleAsync(Request request, ForumDbContext db, HttpContext http)
+    public async Task<IResult> HandleAsync(Request request, ForumDbContext db, HttpContext http, UserManager<ApplicationUser> userManager)
     {
-        var senderId = http.User.Identity?.Name;
-        if (senderId == null)
+        // Get the currently logged-in user
+        var sender = await userManager.GetUserAsync(http.User);
+        if (sender == null)
             return Results.Unauthorized();
 
+        // Check if receiver exists
         var receiverExists = await db.Users.AnyAsync(u => u.Id == request.ReceiverId);
         if (!receiverExists)
             return Results.BadRequest("Receiver does not exist.");
 
+        // Create message
         var message = new DirectMessage
         {
             Body = request.Body,
-            SenderId = senderId,
+            SenderId = sender.Id,            // <-- use actual Id from UserManager
             ReceiverId = request.ReceiverId,
             ParentMessageId = request.ParentMessageId
         };
@@ -47,7 +51,16 @@ public class SendMessageEndpoint : IEndpointMapper
         db.DirectMessages.Add(message);
         await db.SaveChangesAsync();
 
-        var response = new Response(message.Id, message.Body, message.SenderId, message.ReceiverId, message.SentAt, message.IsRead, message.ParentMessageId);
+        var response = new Response(
+            message.Id,
+            message.Body,
+            message.SenderId,
+            message.ReceiverId,
+            message.SentAt,
+            message.IsRead,
+            message.ParentMessageId
+        );
+
         return Results.Created($"/messages/{message.Id}", response);
     }
 }
