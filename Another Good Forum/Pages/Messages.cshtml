@@ -4,106 +4,51 @@
     ViewData["Title"] = "Messages";
 }
 
-<style>
-    .chat-user {
-        padding: 10px;
-        border-bottom: 1px solid #ccc;
-        cursor: pointer;
-    }
+<h2 class="display-5">Your messages</h2>
 
-        .chat-user:hover {
-            background-color: #f0f0f0;
-        }
-
-    .chat-box {
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        padding: 10px;
-        height: 400px;
-        overflow-y: auto;
-        margin-bottom: 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-    }
-
-    .message {
-        padding: 5px 10px;
-        border-radius: 15px;
-        max-width: 70%;
-        word-wrap: break-word;
-    }
-
-        .message.sent {
-            align-self: flex-end;
-            background-color: #d1e7dd;
-        }
-
-        .message.received {
-            align-self: flex-start;
-            background-color: #f8d7da;
-        }
-
-    .new-message-btn {
-        margin-bottom: 15px;
-    }
-
-    .chat-container {
-        display: flex;
-    }
-
-    .chat-users-list {
-        width: 200px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        margin-right: 10px;
-        max-height: 400px;
-        overflow-y: auto;
-    }
-
-    .chat-window {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-    }
-</style>
-
-<div class="text-center mt-3">
-    <button class="btn btn-primary new-message-btn" id="newMessageBtn">New Message</button>
-</div>
-
-<div class="chat-container">
-    <div class="chat-users-list" id="chatUsersList">
-        Loading users...
-    </div>
-    <div class="chat-window">
-        <div class="chat-box" id="chatBox">
-            Select a user to start chatting.
+<div class="message-page-container">
+    <div class="new-message-container">
+        <div>
+             Send a new message here:
+            <button class="btn btn-primary new-message-btn" id="newMessageBtn">New Message</button>
         </div>
-        <textarea id="chatInput" class="form-control" placeholder="Type a message..." style="margin-top:5px;"></textarea>
-        <button class="btn btn-success mt-2" id="sendChatBtn">Send</button>
     </div>
-</div>
+    <div class="chat-container">
+        <div class="chat-users-list" id="chatUsersList">
+            Loading users...
+        </div>
+        <div class="chat-window">
+            <div class="chat-box" id="chatBox">
+                Select a user to start chatting.
+            </div>
+            <textarea id="chatInput" class="form-control" placeholder="Type a message..." style="margin-top:5px;"></textarea>
+            <button class="btn btn-success mt-2" id="sendChatBtn">Send</button>
+        </div>
+    </div>
 
-<!-- New Message Modal -->
-<div class="modal fade" id="newMessageModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">New Message</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <input type="text" id="receiverUsername" class="form-control mb-2" placeholder="Recipient Username" />
-                <textarea id="messageBody" class="form-control" placeholder="Write your message"></textarea>
-                <div id="newMessageError" class="text-danger mt-2" style="display:none;"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" id="sendMessageBtn" class="btn btn-primary">Send</button>
+    <!-- New Message Modal -->
+    <div class="modal fade" id="newMessageModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">New Message</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="receiverUsername" class="form-control mb-2" placeholder="Recipient Username" />
+                    <textarea id="messageBody" class="form-control" placeholder="Write your message"></textarea>
+                    <div id="newMessageError" class="text-danger mt-2" style="display:none;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="sendMessageBtn" class="btn btn-primary">Send</button>
+                </div>
             </div>
         </div>
     </div>
+
 </div>
+
+
 
 @inject IConfiguration Configuration
 @section Scripts {

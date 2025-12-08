@@ -21,6 +21,7 @@ else if (Model.IsAdmin)
         <p class="lead">Welcome, @Model.UserName!</p>
         <p>You have administrative privileges. Here you can manage users, roles, posts, forums, and comments.</p>
         
+        <div class="page-container">
         <div class="row mt-5">
             <div class="col-md-4">
                 <div class="card">
@@ -106,5 +107,6 @@ else if (Model.IsAdmin)
                 </div>
             </div>
         </div>
+      </div>
     </div>
 }

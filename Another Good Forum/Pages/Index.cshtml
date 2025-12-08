@@ -5,12 +5,11 @@
 }
 
 <!-- Messages button (hidden by default) -->
-<button id="messagesBtn" class="btn btn-outline-primary"
-        style="position:absolute; top:12px; right:60px; display:none;">
+@* <button id="messagesBtn" class="message-btn btn btn-outline-primary">
     Messages
 </button>
 
-<img id="userAvatar" class="user-avatar" alt="Profile Picture" />
+<img id="userAvatar" class="user-avatar" alt="Profile Picture" /> *@
 
 <div class="text-center mt-4">
     <h2 class="display-5">Welcome to AnotherGreatForum!</h2>
@@ -67,41 +66,41 @@
             }
     }
 
-    (async () => {
-        try {
-            const response = await fetch(`${window.API_BASE_URL}/users/current`, {
-                method: "GET",
-                credentials: "include"
-            });
+    // (async () => {
+    //     try {
+    //         const response = await fetch(`${window.API_BASE_URL}/users/current`, {
+    //             method: "GET",
+    //             credentials: "include"
+    //         });
 
-            if (!response.ok) return;
+    //         if (!response.ok) return;
 
-            const user = await response.json();
+    //         const user = await response.json();
 
-            // Show avatar
-            const img = document.getElementById("userAvatar");
-            if (user.profilePictureUrl) {
-                img.src = `https://localhost:7242${user.profilePictureUrl}`;
-            } else {
-                img.src = "/images/default-avatar.png";
-            }
-            img.style.display = "block";
+    //         Show avatar
+    //         const img = document.getElementById("userAvatar");
+    //         if (user.profilePictureUrl) {
+    //             img.src = `https:localhost:7242${user.profilePictureUrl}`;
+    //         } else {
+    //             img.src = "/images/default-avatar.png";
+    //         }
+    //         img.style.display = "block";
 
-            img.addEventListener("click", () => {
-                window.location.href = '@Url.Page("/Profile")';
-            });
+    //         img.addEventListener("click", () => {
+    //             window.location.href = '@Url.Page("/Profile")';
+    //         });
 
-            // Show messages button
-            const msgBtn = document.getElementById("messagesBtn");
-            msgBtn.style.display = "block";
-            msgBtn.addEventListener("click", () => {
-                window.location.href = '@Url.Page("/Messages")';
-            });
+    //         Show messages button
+    //         const msgBtn = document.getElementById("messagesBtn");
+    //         msgBtn.style.display = "block";
+    //         msgBtn.addEventListener("click", () => {
+    //             window.location.href = '@Url.Page("/Messages")';
+    //         });
 
-        } catch (err) {
-            console.error("Failed to load user data:", err);
-        }
-    })();
+    //     } catch (err) {
+    //         console.error("Failed to load user data:", err);
+    //     }
+    // })();
       loadPosts();
       checkLogin();
 </script>

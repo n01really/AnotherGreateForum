@@ -4,12 +4,13 @@
     ViewData["Title"] = "Create Forum";
 }
 
-<h1>Create a Forum Post</h1>
+<h1 class="display-5">Create a Forum Post</h1>
 
 <div id="loginNotice" class="alert alert-danger mt-3" style="display:none;">
     You are not logged in!
 </div>
 
+<div class="page-container">
 <form id="createForumForm" style="display:none;" onsubmit="event.preventDefault(); submitForum();">
     <div class="mb-3">
         <label for="title" class="form-label">Title</label>
@@ -30,6 +31,7 @@
 
     <button type="submit" class="btn btn-primary">Save Forum</button>
 </form>
+</div>
 
 @inject IConfiguration Configuration
 @section Scripts {

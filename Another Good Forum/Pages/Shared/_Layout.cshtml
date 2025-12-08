@@ -24,22 +24,24 @@
                         <li class="nav-item" id="createForumNav">
                             <a class="nav-link text-light" asp-area="" asp-page="/CreateForum">Create Forum</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-page="/PostDetails">Post</a>
+                        <li class="nav-item" id="adminNav">
+                            <a class="nav-link text-light" asp-area="" asp-page="/AdminPage">Admin</a>
                         </li>
-                     
                     </ul>
-                    <ul class="navbar-nav flex-grow-1 ms-auto">
+                    <ul class="navbar-nav ms-auto">
                         <li class="nav-item" id="registerNav">
                             <a class="nav-link text-light" asp-area="" asp-page="/Register">Register</a>
                         </li>
                         <li class="nav-item" id="loginNav">
                             <a class="nav-link text-light" asp-area="" asp-page="/Login">Login</a>
                         </li>
-                        <li class="nav-item" id="adminNav">
-                            <a class="nav-link text-light" asp-area="" asp-page="/AdminPage">Admin</a>
-                        </li>
                     </ul>
+
+                    <button id="messagesBtn" class="message-btn btn btn-outline-primary">
+                        Messages
+                    </button>
+
+                    <img id="userAvatar" class="user-avatar" alt="Profile Picture" />
 
                 </div>
             </div>
@@ -102,6 +104,42 @@
                 console.error("Failed to load user info:", err);
                 // Hide Create Forum if error
                 document.getElementById("createForumNav").style.display = "none";
+            }
+        })();
+
+            (async () => {
+            try {
+                const response = await fetch(`${window.API_BASE_URL}/users/current`, {
+                    method: "GET",
+                    credentials: "include"
+                });
+
+                if (!response.ok) return;
+
+                const user = await response.json();
+
+                // Show avatar
+                const img = document.getElementById("userAvatar");
+                if (user.profilePictureUrl) {
+                    img.src = `https://localhost:7242${user.profilePictureUrl}`;
+                } else {
+                    img.src = "/images/default-avatar.png";
+                }
+                img.style.display = "block";
+
+                img.addEventListener("click", () => {
+                    window.location.href = '@Url.Page("/Profile")';
+                });
+
+                // Show messages button
+                const msgBtn = document.getElementById("messagesBtn");
+                msgBtn.style.display = "block";
+                msgBtn.addEventListener("click", () => {
+                    window.location.href = '@Url.Page("/Messages")';
+                });
+
+            } catch (err) {
+                console.error("Failed to load user data:", err);
             }
         })();
 
