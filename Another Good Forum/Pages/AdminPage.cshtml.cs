@@ -23,69 +23,16 @@ namespace Another_Great_Forum.Pages
 
         public async Task<IActionResult> OnGetAsync()
         {
-            // TODO: Remove this temporary bypass once authentication is implemented
+            // Temporary admin bypass
             IsAdmin = true;
             UserName = "Test Admin";
 
-            // Fetch data from API
+            // Load data
             await LoadCategoriesAsync();
             await LoadUsersAsync();
             await LoadPostsAsync();
 
-            return Page();
-
-            /* Original authentication code - restore when ready:
-            try
-            {
-                var authCookie = HttpContext.Request.Cookies[".AspNetCore.Identity.Application"];
-                
-                if (string.IsNullOrEmpty(authCookie))
-                {
-                    return RedirectToPage("/Login");
-                }
-
-                var request = new HttpRequestMessage(HttpMethod.Get, "/users/current");
-                request.Headers.Add("Cookie", $".AspNetCore.Identity.Application={authCookie}");
-
-                var response = await _httpClient.SendAsync(request);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    return RedirectToPage("/Login");
-                }
-
-                var userData = await response.Content.ReadFromJsonAsync<UserResponse>();
-                
-                if (userData == null)
-                {
-                    return RedirectToPage("/Login");
-                }
-
-                UserName = userData.DisplayName;
-
-                if (!userData.Roles.Contains("Admin"))
-                {
-                    ErrorMessage = "Access denied. You must be an administrator to view this page.";
-                    IsAdmin = false;
-                    return Page();
-                }
-
-                IsAdmin = true;
-                
-                // Fetch data from API
-                await LoadCategoriesAsync();
-                await LoadUsersAsync();
-                await LoadPostsAsync();
-                
-                return Page();
-            }
-            catch (HttpRequestException ex)
-            {
-                _logger.LogError(ex, "Error connecting to API");
-                ErrorMessage = "Unable to verify admin status. Please try again later.";
-                return Page();
-            }
-            */  
+            return Page();  
         }
 
         private async Task LoadCategoriesAsync()
@@ -93,18 +40,10 @@ namespace Another_Great_Forum.Pages
             try
             {
                 var httpClient = _httpClientFactory.CreateClient(nameof(AdminPageModel));
-                _logger.LogInformation($"HttpClient BaseAddress: {httpClient.BaseAddress?.ToString() ?? "NULL"}");
-                _logger.LogInformation($"Attempting to call: {httpClient.BaseAddress}categories");
-                
                 var response = await httpClient.GetAsync("/categories");
                 if (response.IsSuccessStatusCode)
                 {
                     Categories = await response.Content.ReadFromJsonAsync<List<CategoryDto>>() ?? new();
-                    _logger.LogInformation($"Loaded {Categories.Count} categories");
-                }
-                else
-                {
-                    _logger.LogWarning($"Failed to load categories. Status: {response.StatusCode}");
                 }
             }
             catch (Exception ex)
@@ -122,11 +61,6 @@ namespace Another_Great_Forum.Pages
                 if (response.IsSuccessStatusCode)
                 {
                     Users = await response.Content.ReadFromJsonAsync<List<UserDto>>() ?? new();
-                    _logger.LogInformation($"Loaded {Users.Count} users");
-                }
-                else
-                {
-                    _logger.LogWarning($"Failed to load users. Status: {response.StatusCode}");
                 }
             }
             catch (Exception ex)
@@ -143,7 +77,14 @@ namespace Another_Great_Forum.Pages
                 var response = await httpClient.GetAsync("/posts");
                 if (response.IsSuccessStatusCode)
                 {
-                    Posts = await response.Content.ReadFromJsonAsync<List<PostDto>>() ?? new();
+                    var posts = await response.Content.ReadFromJsonAsync<List<PostDto>>() ?? new();
+
+                    // Assign Author and Category using 'with' expression
+                    Posts = posts.Select(p => p with
+                    {
+                        Author = Users.FirstOrDefault(u => u.Id == p.AuthorId),
+                        Category = Categories.FirstOrDefault(c => c.Id == p.CategoryId)
+                    }).ToList();
                 }
             }
             catch (Exception ex)
@@ -152,6 +93,36 @@ namespace Another_Great_Forum.Pages
             }
         }
 
+        public async Task<IActionResult> OnPostCreateCategoryAsync(string Name, string Description)
+        {
+            var httpClient = _httpClientFactory.CreateClient(nameof(AdminPageModel));
+            var body = new { Name, Description };
+            await httpClient.PostAsJsonAsync("/categories", body);
+            await LoadCategoriesAsync();
+            return RedirectToPage();
+        }
+
+        public async Task<IActionResult> OnPostDeleteCategoryAsync(int id)
+        {
+            var httpClient = _httpClientFactory.CreateClient(nameof(AdminPageModel));
+            await httpClient.DeleteAsync($"/categories/{id}");
+            await LoadCategoriesAsync();
+            return RedirectToPage();
+        }
+
+        public async Task<IActionResult> OnPostDeletePostAsync(int id)
+        {
+            var httpClient = _httpClientFactory.CreateClient(nameof(AdminPageModel));
+            var response = await httpClient.DeleteAsync($"/posts/{id}");
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["ErrorMessage"] = "Failed to delete post.";
+            }
+            await LoadPostsAsync();
+            return RedirectToPage();
+        }
+
+        // DTOs
         private record UserResponse(string Id, string DisplayName, string Email, List<string> Roles);
 
         public record CategoryDto(int Id, string Name, string Description);

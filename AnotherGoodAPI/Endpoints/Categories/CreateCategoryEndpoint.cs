@@ -38,7 +38,7 @@ public class CreateCategoryEndpoint : IEndpointMapper
         var category = new Category
         {
             Name = request.Name,
-            Description = request.Description
+            Description = request.Description ?? ""
         };
 
         db.Categories.Add(category);
