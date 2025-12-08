@@ -4,22 +4,6 @@
     ViewData["Title"] = "Home page";
 }
 
-<style>
-    .user-avatar {
-        position: absolute;
-        top: 12px;
-        right: 15px;
-        width: 35px;
-        height: 35px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 2px solid #fff;
-        box-shadow: 0 0 3px rgba(0,0,0,0.3);
-        cursor: pointer;
-        display: none;
-    }
-</style>
-
 <!-- Messages button (hidden by default) -->
 <button id="messagesBtn" class="btn btn-outline-primary"
         style="position:absolute; top:12px; right:60px; display:none;">
@@ -28,11 +12,59 @@
 
 <img id="userAvatar" class="user-avatar" alt="Profile Picture" />
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
+<div class="text-center mt-4">
+    <h2 class="display-5">Welcome to AnotherGreatForum!</h2>
+    <div id="login-status" class="mt-3"></div>
+    <br>
+</div>
+
+<div class="page-container">
+    <div class="card-container" id="post"></div>
 </div>
 
 <script>
+    async function checkLogin() {
+            try {
+                const res = await fetch('https://localhost:7242/users/current', {
+                    credentials: 'include'
+                });
+                const div = document.getElementById('login-status');
+
+                if (res.ok) {
+                    const data = await res.json();
+                    div.innerHTML = `Welcome back ${data.name}!`;
+                } else {
+                    div.innerHTML = `You are not logged in.`;
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Error, couldn't log in..");
+            }
+    }
+    async function loadPosts() {
+            try {
+                const postsResponse = await fetch("https://localhost:7242/posts", { credentials: 'include' });
+                const posts = await postsResponse.json();
+                const container = document.getElementById("post");
+
+                posts.forEach(post => {
+                    container.innerHTML += `
+                                <a href="posts/${post.id}" class="card-link">
+                                <div class = "card">
+                                <h4 class="card-title">${post.title}</h4>
+                                <p class="card-text">${post.body}</p>
+                                <small class="card-date text-muted">${new Date(post.createdAt).toLocaleString()}</small>
+                                </div>
+                                </a>`;
+
+                });
+
+            } catch(err) {
+                console.error(err);
+                alert("Error! Couldn't load posts..");
+            }
+    }
+
     (async () => {
         try {
             const response = await fetch("https://localhost:7242/users/current", {
@@ -68,63 +100,8 @@
             console.error("Failed to load user data:", err);
         }
     })();
+      loadPosts();
+      checkLogin();
 </script>
-    <h2 class="display-5">Welcome to AnotherGreatForum!</h2>
-    <div id="login-status" class="mt-3"></div>
-    <br>
-</div>
-
-<div class="page-container">
-    <div class="card-container"id="post"></div>
-</div>
 
 
-@section Scripts {
-    <script>
-        async function checkLogin() {
-            try {
-                const res = await fetch('https://localhost:7242/users/me', {
-                    credentials: 'include'
-                });
-                const div = document.getElementById('login-status');
-
-                if (res.ok) {
-                    const data = await res.json();
-                    div.innerHTML = `Welcome back ${data.name}!`;
-                } else {
-                    div.innerHTML = `You are not logged in.`;
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Error, couldn't log in..");
-            }
-        }
-
-        async function loadPosts() {
-            try {
-                const postsResponse = await fetch("https://localhost:7242/posts", { credentials: 'include' });
-                const posts = await postsResponse.json();
-                const container = document.getElementById("post");
-                
-                posts.forEach(post => {
-                    container.innerHTML += `
-                                <a href="Posts/PostDetails?id=${post.id}" class="card-link">
-                                <div class = "card">
-                                <h4 class="card-title">${post.title}</h4>
-                                <p class="card-text">${post.body}</p>
-                                <small class="card-date text-muted">${new Date(post.createdAt).toLocaleString()}</small>
-                                </div>
-                                </a>`;
-
-                });
-
-            } catch(err) {
-                console.error(err);
-                alert("Error! Couldn't load posts..");
-            }
-        }
-
-        loadPosts();
-        checkLogin();
-    </script>
-}

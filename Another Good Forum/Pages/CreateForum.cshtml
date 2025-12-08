@@ -35,7 +35,7 @@
     <script>
         async function loadCategories() {
             try {
-                const meResponse = await fetch('https://localhost:7242/users/me', { credentials: 'include' });
+                const meResponse = await fetch('https://localhost:7242/users/current', { credentials: 'include' });
                 if (!meResponse.ok) {
                     document.getElementById('loginNotice').style.display = 'block';
                     return;
