@@ -1,0 +1,41 @@
+﻿@page "{id:int}"
+@model Another_Great_Forum.Pages.PostDetailsModel
+@{
+    Layout = "_Layout";
+}
+
+<div class="page-container">
+    <div id="post"></div>
+    <a asp-page="Index">Back to home-page</a>
+</div>
+
+@section Scripts{
+    <script>
+        async function loadPostDetails(){
+            const pathParts = window.location.pathname.split('/');
+            const id = pathParts[pathParts.length - 1];
+            try{
+                const postResponse = await fetch(`https://localhost:7242/posts/${id}`, { credentials: 'include' })
+                const post = await postResponse.json();
+                const container = document.getElementById("post");
+
+
+                    container.innerHTML += `
+                                <div class="card">
+                                <h2 class="card-title">${post.title}</h2>
+                                <p class="card-text linebreak">${post.body}</p>
+                                <p>${post.categoryName}<br>
+                                  By:${post.authorName}
+                                </p>
+                                <small class="card-date text-muted">${new Date(post.createdAt).toLocaleString()}</small>
+                                </div>`;
+            }
+            catch(err){
+                console.error(err);
+                alert("Error! Couldn't load post..");
+            }
+        }
+        loadPostDetails();
+
+    </script>
+}

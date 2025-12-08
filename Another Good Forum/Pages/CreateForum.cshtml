@@ -1,0 +1,95 @@
+﻿@page
+@model Another_Great_Forum.Pages.Shared.CreateForumModel
+@{
+    ViewData["Title"] = "Create Forum";
+}
+
+<h1>Create a Forum Post</h1>
+
+<div id="loginNotice" class="alert alert-danger mt-3" style="display:none;">
+    You are not logged in!
+</div>
+
+<form id="createForumForm" style="display:none;" onsubmit="event.preventDefault(); submitForum();">
+    <div class="mb-3">
+        <label for="title" class="form-label">Title</label>
+        <input id="title" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label for="body" class="form-label">Text</label>
+        <textarea id="body" class="form-control" rows="4"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="category" class="form-label">Category</label>
+        <select id="category" class="form-control">
+            <option value="">Select Category</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Forum</button>
+</form>
+
+@section Scripts {
+    <script>
+        async function loadCategories() {
+            try {
+                const meResponse = await fetch('https://localhost:7242/users/current', { credentials: 'include' });
+                if (!meResponse.ok) {
+                    document.getElementById('loginNotice').style.display = 'block';
+                    return;
+                }
+
+                document.getElementById('createForumForm').style.display = 'block';
+                const categoriesResponse = await fetch('https://localhost:7242/categories', { credentials: 'include' });
+                const categories = await categoriesResponse.json();
+                const select = document.getElementById('category');
+
+                categories.forEach(c => {
+                    const option = document.createElement('option');
+                    option.value = c.id;
+                    option.textContent = c.name;
+                    select.appendChild(option);
+                });
+
+            } catch (err) {
+                console.error(err);
+                alert('Error loading categories or checking login.');
+            }
+        }
+
+        async function submitForum() {
+            const title = document.getElementById('title').value;
+            const body = document.getElementById('body').value;
+            const categoryId = document.getElementById('category').value;
+
+            if (!title || !body || !categoryId) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            try {
+                const postResponse = await fetch('https://localhost:7242/posts', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ Title: title, Content: body, CategoryId: parseInt(categoryId) })
+                });
+
+                if(postResponse.ok){
+                    alert('Forum post created successfully!');
+                    window.location.href = '@Url.Page("/Index")';
+                } else {
+                    const error = await postResponse.text();
+                    alert('Error creating forum post: ' + error);
+                }
+            } catch(err) {
+                console.error(err);
+                alert('Error creating forum post.');
+            }
+        }
+
+        loadCategories();
+    </script>
+}
