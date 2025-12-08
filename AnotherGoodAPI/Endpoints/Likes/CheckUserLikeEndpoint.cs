@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace AnotherGoodAPI.Endpoints.Likes;
 
@@ -19,7 +20,7 @@ public class CheckUserLikeEndpoint : IEndpointMapper
 
     public async Task<IResult> HandleAsync(int postId, ForumDbContext db, HttpContext http)
     {
-        var userId = http.User.Identity?.Name;
+        var userId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null)
             return Results.Unauthorized();
 

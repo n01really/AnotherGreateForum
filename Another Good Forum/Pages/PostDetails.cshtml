@@ -6,6 +6,21 @@
 <h1>Post Details</h1>
 <div id="post"></div>
 
+<hr />
+
+<h3>Comments</h3>
+<div id="comments"></div>
+
+<textarea id="newComment" class="form-control" placeholder="Write a comment..."></textarea>
+<br />
+<button class="btn btn-primary" onclick="addComment()">Post Comment</button>
+
+<hr />
+
+<h3>Likes</h3>
+<div id="likesSection"></div>
+
+
 @inject IConfiguration Configuration
 @section Scripts{
     <script>
@@ -34,7 +49,97 @@
                 alert("Error! Couldn't load post..");
             }
         }
-        loadPostDetails();
+
+            async function loadComments(postId) {
+            const res = await fetch(`${window.API_BASE_URL}/comments/post/${postId}`, { credentials: 'include' });
+            const comments = await res.json();
+
+            const container = document.getElementById("comments");
+            container.innerHTML = "";
+
+            comments.forEach(c => {
+                container.innerHTML += `
+                    <div class="comment-box">
+                        <b>${c.authorName}</b>
+                        <p>${c.body}</p>
+                        <small>${new Date(c.createdAt).toLocaleString()}</small>
+                        <br/>
+                        <button class="btn btn-danger btn-sm" onclick="deleteComment(${c.id})">Delete</button>
+                    </div><hr/>
+                `;
+            });
+        }
+
+        async function addComment() {
+            const pathParts = window.location.pathname.split('/');
+            const postId = pathParts[pathParts.length - 1];
+            const body = document.getElementById("newComment").value;
+
+            if (!body) return alert("Write something first!");
+
+            await fetch(`${window.API_BASE_URL}/comments`, {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ postId: parseInt(postId), body })
+            });
+
+            document.getElementById("newComment").value = "";
+            loadComments(postId);
+        }
+
+        async function deleteComment(id) {
+            await fetch(`${window.API_BASE_URL}/comments/${id}`, {
+                method: "DELETE",
+                credentials: "include"
+            });
+
+            const postId = window.location.pathname.split('/').pop();
+            loadComments(postId);
+        }
+
+        async function loadLikes(postId) {
+            const countRes = await fetch(`${window.API_BASE_URL}/likes/post/${postId}`, { credentials: 'include' });
+            const countData = await countRes.json();
+
+            const userRes = await fetch(`${window.API_BASE_URL}/likes/post/${postId}/user`, { credentials: 'include' });
+            const userData = await userRes.json();
+
+            const container = document.getElementById("likesSection");
+
+            container.innerHTML = `
+                <p><b>Likes:</b> ${countData.likes}</p>
+                ${userData.liked
+                    ? `<button class="btn btn-warning" onclick="unlikePost(${postId})">Unlike</button>`
+                    : `<button class="btn btn-success" onclick="likePost(${postId})">Like</button>`
+                }
+            `;
+        }
+
+        async function likePost(postId) {
+            await fetch(`${window.API_BASE_URL}/likes/post/${postId}`, {
+                method: "POST",
+                credentials: "include"
+            });
+            loadLikes(postId);
+        }
+
+        async function unlikePost(postId) {
+            await fetch(`${window.API_BASE_URL}/likes/post/${postId}`, {
+                method: "DELETE",
+                credentials: "include"
+            });
+            loadLikes(postId);
+        }
+
+        async function initPage() {
+            const postId = window.location.pathname.split('/').pop();
+            await loadPostDetails();
+            await loadComments(postId);
+            await loadLikes(postId);
+        }
+
+        initPage();
 
     </script>
 }

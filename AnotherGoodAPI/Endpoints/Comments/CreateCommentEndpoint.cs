@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace AnotherGoodAPI.Endpoints.Comments;
 
@@ -27,7 +28,7 @@ public class CreateCommentEndpoint : IEndpointMapper
 
     public async Task<IResult> HandleAsync(Request request, ForumDbContext db, HttpContext http)
     {
-        var userId = http.User.Identity?.Name;
+        var userId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null)
             return Results.Unauthorized();
 
