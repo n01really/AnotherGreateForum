@@ -9,7 +9,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark border-bottom box-shadow mb-3">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">Another_Great_Forum</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
@@ -17,23 +17,32 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav flex-grow-1 ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                            <a class="nav-link text-light" asp-area="" asp-page="/Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item" id="registerNav">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Register">Register</a>
-                        </li>
-                        <li class="nav-item" id="loginNav">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Login">Login</a>
+                        <li class="nav-item" id="createForumNav">
+                            <a class="nav-link text-light" asp-area="" asp-page="/CreateForum">Create Forum</a>
                         </li>
                         <li class="nav-item" id="adminNav">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/AdminPage">Admin</a>
+                            <a class="nav-link text-light" asp-area="" asp-page="/AdminPage">Admin</a>
                         </li>
                     </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item" id="registerNav">
+                            <a class="nav-link text-light" asp-area="" asp-page="/Register">Register</a>
+                        </li>
+                        <li class="nav-item" id="loginNav">
+                            <a class="nav-link text-light" asp-area="" asp-page="/Login">Login</a>
+                        </li>
+                    </ul>
+
+                    <button id="messagesBtn" class="message-btn btn btn-outline-primary">
+                        Messages
+                    </button>
+
+                    <img id="userAvatar" class="user-avatar" alt="Profile Picture" />
+
                 </div>
             </div>
         </nav>
@@ -54,39 +63,86 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-
+    @inject IConfiguration Configuration
     <script>
+        window.API_BASE_URL = "@Configuration["ApiSettings:BaseUrl"]";
         (async () => {
             try {
-                const res = await fetch("https://localhost:7242/users/current", {
+                const res = await fetch(`${window.API_BASE_URL}/users/current`, {
                     credentials: "include"
                 });
 
+                const createForumNav = document.getElementById("createForumNav");
+                const registerNav = document.getElementById("registerNav");
+                const loginNav = document.getElementById("loginNav");
+                const adminNav = document.getElementById("adminNav");
+
                 if (!res.ok) {
-                    // Not logged in → show Register/Login, hide Admin
-                    document.getElementById("registerNav").style.display = "block";
-                    document.getElementById("loginNav").style.display = "block";
-                    document.getElementById("adminNav").style.display = "none";
+                    // Not logged in
+                    registerNav.style.display = "block";
+                    loginNav.style.display = "block";
+                    adminNav.style.display = "none";
+                    createForumNav.style.display = "none"; // hide Create Forum
                     return;
                 }
 
                 const user = await res.json();
 
-                // Logged in → hide Register/Login
-                document.getElementById("registerNav").style.display = "none";
-                document.getElementById("loginNav").style.display = "none";
+                // Logged in
+                registerNav.style.display = "none";
+                loginNav.style.display = "none";
+                createForumNav.style.display = "block"; // show Create Forum
 
-                // Show Admin link only if user has "Admin" role
-                if (user.roles.includes("Admin")) {
-                    document.getElementById("adminNav").style.display = "block";
+                // Admin link
+                if (user.roles && user.roles.includes("Admin")) {
+                    adminNav.style.display = "block";
                 } else {
-                    document.getElementById("adminNav").style.display = "none";
+                    adminNav.style.display = "none";
                 }
 
             } catch(err) {
                 console.error("Failed to load user info:", err);
+                // Hide Create Forum if error
+                document.getElementById("createForumNav").style.display = "none";
             }
         })();
+
+            (async () => {
+            try {
+                const response = await fetch(`${window.API_BASE_URL}/users/current`, {
+                    method: "GET",
+                    credentials: "include"
+                });
+
+                if (!response.ok) return;
+
+                const user = await response.json();
+
+                // Show avatar
+                const img = document.getElementById("userAvatar");
+                if (user.profilePictureUrl) {
+                    img.src = `https://localhost:7242${user.profilePictureUrl}`;
+                } else {
+                    img.src = "/images/default-avatar.png";
+                }
+                img.style.display = "block";
+
+                img.addEventListener("click", () => {
+                    window.location.href = '@Url.Page("/Profile")';
+                });
+
+                // Show messages button
+                const msgBtn = document.getElementById("messagesBtn");
+                msgBtn.style.display = "block";
+                msgBtn.addEventListener("click", () => {
+                    window.location.href = '@Url.Page("/Messages")';
+                });
+
+            } catch (err) {
+                console.error("Failed to load user data:", err);
+            }
+        })();
+
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)

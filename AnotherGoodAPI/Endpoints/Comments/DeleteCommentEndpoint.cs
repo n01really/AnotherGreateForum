@@ -1,6 +1,7 @@
 ﻿using AnotherGoodAPI.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace AnotherGoodAPI.Endpoints.Comments;
 
@@ -18,7 +19,7 @@ public class DeleteCommentEndpoint : IEndpointMapper
 
     public async Task<IResult> HandleAsync(int id, ForumDbContext db, HttpContext http)
     {
-        var userId = http.User.Identity?.Name;
+        var userId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null)
             return Results.Unauthorized();
 

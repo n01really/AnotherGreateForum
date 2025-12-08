@@ -18,14 +18,16 @@
     <button id="login-btn" type="button" class="btn btn-primary">Login</button>
 </div>
 
+@inject IConfiguration Configuration
 @section Scripts {
     <script>
+        window.API_BASE_URL = "@Configuration["ApiSettings:BaseUrl"]";
         document.getElementById('login-btn').addEventListener('click', async () => {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
             try {
-                const res = await fetch('https://localhost:7242/users/login', {
+                const res = await fetch(`${window.API_BASE_URL}/users/login`, {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },

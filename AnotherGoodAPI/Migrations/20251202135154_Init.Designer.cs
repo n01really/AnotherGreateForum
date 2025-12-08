@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AnotherGoodAPI.Migrations
 {
     [DbContext(typeof(ForumDbContext))]
-    [Migration("20251127165912_init")]
-    partial class init
+    [Migration("20251202135154_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -115,6 +115,26 @@ namespace AnotherGoodAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Talk about anything!",
+                            Name = "General Discussion"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "All about games!",
+                            Name = "Gaming"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Tech news and projects!",
+                            Name = "Technology"
+                        });
                 });
 
             modelBuilder.Entity("AnotherGoodAPI.Models.Comment", b =>
