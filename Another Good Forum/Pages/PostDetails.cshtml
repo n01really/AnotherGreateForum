@@ -1,13 +1,10 @@
 ﻿@page "{id:int}"
 @model Another_Great_Forum.Pages.PostDetailsModel
 @{
-    Layout = "_Layout";
+    ViewData["Title"] = "Post Details";
 }
-
-<div class="page-container">
-    <div id="post"></div>
-    <a asp-page="Index">Back to home-page</a>
-</div>
+<h1>Post Details</h1>
+<div id="post"></div>
 
 @section Scripts{
     <script>
@@ -21,13 +18,13 @@
 
 
                     container.innerHTML += `
-                                <div class="card">
-                                <h2 class="card-title">${post.title}</h2>
-                                <p class="card-text linebreak">${post.body}</p>
-                                <p>${post.categoryName}<br>
-                                  By:${post.authorName}
-                                </p>
-                                <small class="card-date text-muted">${new Date(post.createdAt).toLocaleString()}</small>
+                                <div class="post-container">
+                                <h2>${post.title}</h2>
+                                <p>${post.body}</p>
+                                <p class="post-category"><strong>Category /</strong> ${post.categoryName}</p>
+                                <small class="post-author text-muted">
+                                Posted by: ${post.authorName}<br>
+                                ${new Date(post.createdAt).toLocaleString()}</small>
                                 </div>`;
             }
             catch(err){

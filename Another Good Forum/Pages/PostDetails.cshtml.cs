@@ -8,6 +8,7 @@ namespace Another_Great_Forum.Pages
 
         public List<PostDto> Posts { get; set; } = new List<PostDto>();
         public record PostDto(int Id, string Title, string Body, string AuthorName, string CategoryName, DateTime CreatedAt, int CommentCount, int LikeCount);
+
         public void OnGet()
         {
         }
