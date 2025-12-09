@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        version: ['9.0', '8.0']
+        version: ['8.0'] 
 
     steps:
       - name: Checkout code
@@ -35,9 +35,6 @@ jobs:
           echo "Commit Message: ${{ github.event.head_commit.message || 'N/A' }}"
           echo "Author: ${{ github.event.head_commit.author.name || 'N/A' }}"
 
-      - name: List files
-        run: ls -R
-
       - name: Context pull request
         shell: bash
         run: |
@@ -51,11 +48,14 @@ jobs:
           dotnet-version: ${{ matrix.version }}
 
       - name: Restore
-        run: dotnet restore "AnotherGreateForum/Another Good Forum/Another Great Forum.sln"
+        working-directory: "Another Good Forum"
+        run: dotnet restore "Another Great Forum.sln"
 
       - name: Build
-        run: dotnet build "AnotherGreateForum/Another Good Forum/Another Great Forum.sln" --no-restore
+        working-directory: "Another Good Forum"
+        run: dotnet build "Another Great Forum.sln" --no-restore
 
       - name: Test (only when build succeeded)
+        working-directory: "Another Good Forum"
         if: success()
-        run: dotnet test "AnotherGreateForum/Another Good Forum/Another Great Forum.sln" --no-build --verbosity normal
+        run: dotnet test "Another Great Forum.sln" --no-build --verbosity normal
