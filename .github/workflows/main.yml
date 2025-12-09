@@ -58,4 +58,4 @@ jobs:
       - name: Test (only when build succeeded)
         working-directory: "Another Good Forum"
         if: success()
-        run: dotnet test "Another Great Forum.sln" --verbosity normal
+        run: dotnet test "Another Great Forum.sln" --no-build --verbosity normal
