@@ -4,6 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <_VSTestConsoleEnabled>true</_VSTestConsoleEnabled>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,7 +30,6 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\profile-pictures\" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
 </Project>
