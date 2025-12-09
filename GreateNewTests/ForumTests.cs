@@ -187,7 +187,7 @@ namespace ForumTest
             Assert.True(response.IsSuccessStatusCode, $"API call failed with status code: {response.StatusCode}");
             var posts = await response.Content.ReadFromJsonAsync<List<GetPostsResponse>>();
             Assert.NotNull(posts);
-            
+
         }
     }
 }

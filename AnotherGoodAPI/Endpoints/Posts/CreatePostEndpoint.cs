@@ -30,7 +30,7 @@ public class CreatePostEndpoint : IEndpointMapper
 
     public async Task<IResult> HandleAsync(Request request, ForumDbContext db, HttpContext http)
     {
-        
+
         var userId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null)
             return Results.Unauthorized();

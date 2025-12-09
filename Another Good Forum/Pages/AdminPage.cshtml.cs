@@ -32,7 +32,7 @@ namespace Another_Great_Forum.Pages
             await LoadUsersAsync();
             await LoadPostsAsync();
 
-            return Page();  
+            return Page();
         }
 
         private async Task LoadCategoriesAsync()

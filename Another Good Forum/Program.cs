@@ -21,12 +21,12 @@ namespace Another_Great_Forum
             {
                 client.BaseAddress = new Uri(apiBaseUrl);
             });
-            
+
             builder.Services.AddHttpClient(nameof(Pages.LoginModel), client =>
             {
                 client.BaseAddress = new Uri(apiBaseUrl);
             });
-            
+
             builder.Services.AddHttpClient(nameof(Pages.AdminPageModel), client =>
             {
                 client.BaseAddress = new Uri(apiBaseUrl);

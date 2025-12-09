@@ -14,14 +14,15 @@ namespace Another_Great_Forum.Pages
             _httpClient = httpClient;
         }
 
-        public class InputModel {
+        public class InputModel
+        {
 
             [Required, EmailAddress]
             public string Email { get; set; }
 
             [Required]
             public string Password { get; set; }
-                
+
         };
 
         [BindProperty]
