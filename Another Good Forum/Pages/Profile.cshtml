@@ -71,7 +71,7 @@
             currentFile = null;
         }
 
-        // Save button
+
         document.getElementById('save-btn').addEventListener('click', async () => {
             if(currentFile){
                 const formData = new FormData();
@@ -88,7 +88,7 @@
                     return;
                 }
             } else {
-                // If deleted, call endpoint to remove picture
+
                 await fetch(`${window.API_BASE_URL}/users/profile-picture/delete`, {
                     method: 'POST',
                     credentials: 'include'
