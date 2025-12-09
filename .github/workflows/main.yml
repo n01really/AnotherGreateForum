@@ -51,6 +51,10 @@ jobs:
         working-directory: "Another Good Forum"
         run: dotnet restore "Another Great Forum.sln"
 
+      - name: Code Analysis
+        working-directory: "Another Good Forum"
+        run: dotnet format --verify-no-changes
+
       - name: Build
         working-directory: "Another Good Forum"
         run: dotnet build "Another Great Forum.sln" --no-restore
