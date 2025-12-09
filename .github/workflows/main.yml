@@ -48,10 +48,10 @@ jobs:
           dotnet-version: ${{ matrix.version }}
 
       - name: Restore
-        run: dotnet restore Another_Great_Forum.sln
+        run: dotnet restore "AnotherGreateForum/Another Good Forum/Another Great Forum.sln"
 
       - name: Build
-        run: dotnet build Another_Great_Forum.sln --no-restore
+        run: dotnet build "AnotherGreateForum/Another Good Forum/Another Great Forum.sln" --no-restore
 
       - name: Test (only when build succeeded)
         if: success()
