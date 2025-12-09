@@ -2,6 +2,10 @@ name: Matrix-Event-Reporter
 
 on:
   workflow_dispatch:
+    inputs:
+      note:
+        description: 'Optional note'
+        required: false
   push:
     branches: [ main ]
   pull_request:
@@ -19,21 +23,36 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: context manual 
+      - name: Context manual
         shell: bash
         run: |
           echo "Started by: ${{ github.actor }}"
           echo "Input note: ${{ github.event.inputs.note || 'N/A' }}"
 
-      - name: context push 
+      - name: Context push
         shell: bash
         run: |
           echo "Commit Message: ${{ github.event.head_commit.message || 'N/A' }}"
           echo "Author: ${{ github.event.head_commit.author.name || 'N/A' }}"
-      
-      - name: context pull request
+
+      - name: Context pull request
         shell: bash
         run: |
-          echo "PR Opened by: ${{ github.event.pull_request.user.login }}"
-          echo "PR Title: ${{ github.event.pull_request.title }}"
+          echo "PR Opened by: ${{ github.event.pull_request.user.login || 'N/A' }}"
+          echo "PR Title: ${{ github.event.pull_request.title || 'N/A' }}"
           echo "PR Body: ${{ github.event.pull_request.body || 'N/A' }}"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ matrix.version }}
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore
+
+      - name: Test (only when build succeeded)
+        if: success()
+        run: dotnet test --no-build --verbosity normal
