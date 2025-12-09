@@ -50,7 +50,7 @@
 
     <div class="container">
         <main role="main" class="pb-3">
-            @RenderBody() <!-- Page content goes here -->
+            @RenderBody() 
         </main>
     </div>
 
@@ -78,22 +78,21 @@
                 const adminNav = document.getElementById("adminNav");
 
                 if (!res.ok) {
-                    // Not logged in
+
                     registerNav.style.display = "block";
                     loginNav.style.display = "block";
                     adminNav.style.display = "none";
-                    createForumNav.style.display = "none"; // hide Create Forum
+                    createForumNav.style.display = "none";
                     return;
                 }
 
                 const user = await res.json();
 
-                // Logged in
+  
                 registerNav.style.display = "none";
                 loginNav.style.display = "none";
-                createForumNav.style.display = "block"; // show Create Forum
+                createForumNav.style.display = "block"; 
 
-                // Admin link
                 if (user.roles && user.roles.includes("Admin")) {
                     adminNav.style.display = "block";
                 } else {
@@ -102,7 +101,7 @@
 
             } catch(err) {
                 console.error("Failed to load user info:", err);
-                // Hide Create Forum if error
+
                 document.getElementById("createForumNav").style.display = "none";
             }
         })();
@@ -118,7 +117,6 @@
 
                 const user = await response.json();
 
-                // Show avatar
                 const img = document.getElementById("userAvatar");
                 if (user.profilePictureUrl) {
                     img.src = `https://localhost:7242${user.profilePictureUrl}`;
@@ -131,7 +129,6 @@
                     window.location.href = '@Url.Page("/Profile")';
                 });
 
-                // Show messages button
                 const msgBtn = document.getElementById("messagesBtn");
                 msgBtn.style.display = "block";
                 msgBtn.addEventListener("click", () => {

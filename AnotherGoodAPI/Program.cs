@@ -3,7 +3,7 @@ using AnotherGoodAPI.Endpoints;
 using AnotherGoodAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using DotNetEnv; // <-- add this
+using DotNetEnv;
 
 namespace AnotherGoodAPI
 {
@@ -11,20 +11,16 @@ namespace AnotherGoodAPI
     {
         public static void Main(string[] args)
         {
-            // 1?? Load .env file
             Env.Load();
 
             var builder = WebApplication.CreateBuilder(args);
             builder.Environment.WebRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
 
-            // 2?? Read connection string from .env
             var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
 
-            // 3?? Add DbContext
             builder.Services.AddDbContext<ForumDbContext>(options =>
                 options.UseNpgsql(connectionString));
 
-            // 4?? Identity
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ForumDbContext>()
                 .AddDefaultTokenProviders();
@@ -38,7 +34,6 @@ namespace AnotherGoodAPI
 
             builder.Services.AddAuthorization();
 
-            // 5?? CORS using .env
             var frontendUrl1 = Environment.GetEnvironmentVariable("FRONTEND_URL_1");
             var frontendUrl2 = Environment.GetEnvironmentVariable("FRONTEND_URL_2");
 
@@ -61,7 +56,6 @@ namespace AnotherGoodAPI
             app.UseAuthentication();
             app.UseAuthorization();
 
-            // Map endpoints
             EndpointRegistrar.MapAllEndpoints(app);
 
             app.Run();
