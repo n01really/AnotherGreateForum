@@ -26,7 +26,6 @@
         </div>
     </div>
 
-    <!-- New Message Modal -->
     <div class="modal fade" id="newMessageModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -96,7 +95,6 @@
                 const res = await fetch(`${window.API_BASE_URL}/messages/chat/${selectedUserId}`, { credentials: 'include' });
                 const messages = await res.json();
 
-                // Only update if there are new messages
                 if(JSON.stringify(messages) !== JSON.stringify(lastMessages)) {
                     chatBox.innerHTML = '';
                     for(const m of messages){
