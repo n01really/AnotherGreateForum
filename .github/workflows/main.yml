@@ -55,4 +55,4 @@ jobs:
 
       - name: Test (only when build succeeded)
         if: success()
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test "AnotherGreateForum/Another Good Forum/Another Great Forum.sln" --no-build --verbosity normal
