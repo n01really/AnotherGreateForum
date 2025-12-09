@@ -29,7 +29,6 @@ public class RegisterUserEndpoint : IEndpointMapper
         if (request == null)
             return Results.BadRequest("Request body is empty.");
 
-        // Check if email already exists
         var existingUser = await userManager.FindByEmailAsync(request.Email);
         if (existingUser != null)
             return Results.BadRequest("A user with this email already exists.");
@@ -48,7 +47,6 @@ public class RegisterUserEndpoint : IEndpointMapper
             return Results.BadRequest(errors);
         }
 
-        // Sign in the user immediately
         await signInManager.SignInAsync(user, isPersistent: false);
 
         var response = new Response(user.Id, user.DisplayName, user.Email, user.ProfilePictureUrl);

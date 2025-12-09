@@ -26,11 +26,9 @@ public class CreateCategoryEndpoint : IEndpointMapper
 
     public async Task<IResult> HandleAsync(CategoryCreateRequest request, ForumDbContext db)
     {
-        // Validation
         if (string.IsNullOrWhiteSpace(request.Name))
             return Results.BadRequest("Name is required.");
 
-        // Check for duplicate
         var exists = await db.Categories.AnyAsync(c => c.Name == request.Name);
         if (exists)
             return Results.BadRequest("Category already exists.");

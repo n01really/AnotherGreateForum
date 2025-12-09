@@ -24,7 +24,6 @@ public class GetChatUsersEndpoint : IEndpointMapper
         if (string.IsNullOrEmpty(currentUserId))
             return Results.Unauthorized();
 
-        // Get all distinct users you have messages with
         var userIds = await db.DirectMessages
             .Where(m => m.SenderId == currentUserId || m.ReceiverId == currentUserId)
             .Select(m => m.SenderId == currentUserId ? m.ReceiverId : m.SenderId)

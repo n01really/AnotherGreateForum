@@ -10,13 +10,10 @@ namespace Another_Great_Forum
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services for Razor Pages
             builder.Services.AddRazorPages();
 
-            // Get API base URL from configuration
             var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7286";
 
-            // Configure named HttpClients
             builder.Services.AddHttpClient(nameof(Pages.RegisterModel), client =>
             {
                 client.BaseAddress = new Uri(apiBaseUrl);
@@ -34,7 +31,6 @@ namespace Another_Great_Forum
 
             var app = builder.Build();
 
-            // Configure middleware
             if (app.Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -46,11 +42,10 @@ namespace Another_Great_Forum
             }
 
             app.UseHttpsRedirection();
-            app.UseStaticFiles(); // serve CSS, JS, images
+            app.UseStaticFiles();
 
             app.UseRouting();
 
-            // Map Razor Pages
             app.MapRazorPages();
 
             app.Run();

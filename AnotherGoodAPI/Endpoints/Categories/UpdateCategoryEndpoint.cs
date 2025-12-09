@@ -34,7 +34,6 @@ public class UpdateCategoryEndpoint : IEndpointMapper
         if (category == null)
             return Results.NotFound();
 
-        // Update values
         category.Name = request.Name;
         category.Description = request.Description;
 

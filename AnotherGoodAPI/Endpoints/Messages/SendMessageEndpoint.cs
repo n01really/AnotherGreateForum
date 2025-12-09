@@ -29,21 +29,18 @@ public class SendMessageEndpoint : IEndpointMapper
 
     public async Task<IResult> HandleAsync(Request request, ForumDbContext db, HttpContext http, UserManager<ApplicationUser> userManager)
     {
-        // Get the currently logged-in user
         var sender = await userManager.GetUserAsync(http.User);
         if (sender == null)
             return Results.Unauthorized();
 
-        // Check if receiver exists
         var receiverExists = await db.Users.AnyAsync(u => u.Id == request.ReceiverId);
         if (!receiverExists)
             return Results.BadRequest("Receiver does not exist.");
 
-        // Create message
         var message = new DirectMessage
         {
             Body = request.Body,
-            SenderId = sender.Id,            // <-- use actual Id from UserManager
+            SenderId = sender.Id,
             ReceiverId = request.ReceiverId,
             ParentMessageId = request.ParentMessageId
         };
