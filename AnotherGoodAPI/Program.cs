@@ -46,10 +46,23 @@ namespace AnotherGoodAPI
             {
                 options.AddPolicy("FrontendPolicy", policy =>
                 {
-                    policy.WithOrigins(frontendUrl1, frontendUrl2)
-                          .AllowAnyHeader()
-                          .AllowAnyMethod()
-                          .AllowCredentials();
+                    var origins = new[] { frontendUrl1, frontendUrl2 }
+                        .Where(url => !string.IsNullOrEmpty(url))
+                        .ToArray();
+
+                    if (origins.Length > 0)
+                    {
+                        policy.WithOrigins(origins)
+                              .AllowAnyHeader()
+                              .AllowAnyMethod()
+                              .AllowCredentials();
+                    }
+                    else
+                    {
+                        policy.AllowAnyOrigin()
+                              .AllowAnyHeader()
+                              .AllowAnyMethod();
+                    }
                 });
             });
 
