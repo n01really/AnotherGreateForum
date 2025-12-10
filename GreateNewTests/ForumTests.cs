@@ -13,165 +13,32 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.TestHost;
+using AnotherGoodAPI.Endpoints.Posts;
+using AnotherGoodAPI.Endpoints.Categories;
+using AnotherGoodAPI.Endpoints.Comments;
+using AnotherGoodAPI.Endpoints.Users;
 
 namespace ForumTest
 {
-    // Request DTO - matches CreatePostEndpoint.Request inline record
-    public class CreatePostRequest
-    {
-        public string Title { get; set; }
-        public string Content { get; set; }
-        public int CategoryId { get; set; }
-    }
+    using CreatePostRequest = CreatePostEndpoint.Request;
+    using CreatePostResponse = CreatePostEndpoint.Response;
+    using GetPostsResponse = GetPostsEndpoint.Response;
+    using GetPostResponse = GetPostEndpoint.Response;
+    using UpdatePostRequest = UpdatePostEndpoint.Request;
+    using UpdatePostResponse = UpdatePostEndpoint.Response;
+    using CategoryDto = GetCategoriesEndpoint.CategoryDto;
+    using CategoryCreateRequest = CreateCategoryEndpoint.CategoryCreateRequest;
+    using CategoryResponse = CreateCategoryEndpoint.CategoryResponse;
+    using GetCommentsResponse = GetCommentsEndpoint.Response;
+    using CreateCommentRequest = CreateCommentEndpoint.Request;
+    using CreateCommentResponse = CreateCommentEndpoint.Response;
+    using RegisterUserRequest = RegisterUserEndpoint.Request;
+    using RegisterUserResponse = RegisterUserEndpoint.Response;
+    using LoginUserRequest = LoginUserEndpoint.Request;
+    using LoginUserResponse = LoginUserEndpoint.Response;
+    using GetCurrentUserResponse = GetCurrentUserEndpoint.Response;
+    using ToggleLikeResponse = ToggleLikeEndpoint.Response;
 
-    // Response wrapper - matches CreatePostEndpoint.Response inline record
-    public class CreatePostResponse
-    {
-        public Post Post { get; set; }
-    }
-
-    // Response DTO - matches GetPostsEndpoint.Response inline record
-    public class GetPostsResponse
-    {
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public string Body { get; set; }
-        public string AuthorName { get; set; }
-        public string CategoryName { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public int CommentCount { get; set; }
-        public int LikeCount { get; set; }
-    }
-
-    // Response DTO - matches GetPostEndpoint.Response inline record
-    public class GetPostResponse
-    {
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public string Body { get; set; }
-        public string AuthorName { get; set; }
-        public string CategoryName { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public int CommentCount { get; set; }
-        public int LikeCount { get; set; }
-    }
-
-    // Request DTO - matches UpdatePostEndpoint.Request inline record
-    public class UpdatePostRequest
-    {
-        public string Title { get; set; }
-        public string Content { get; set; }
-        public int CategoryId { get; set; }
-    }
-
-    // Response DTO - matches UpdatePostEndpoint.Response inline record
-    public class UpdatePostResponse
-    {
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public string Content { get; set; }
-        public int CategoryId { get; set; }
-        public string AuthorId { get; set; }
-    }
-
-    // Response DTO - matches GetCategoriesEndpoint.CategoryDto inline record
-    public class CategoryDto
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-    }
-
-    // Request DTO - matches CreateCategoryEndpoint.CategoryCreateRequest inline record
-    public class CategoryCreateRequest
-    {
-        public string Name { get; set; }
-        public string Description { get; set; }
-    }
-
-    // Response DTO - matches CreateCategoryEndpoint.CategoryResponse inline record
-    public class CategoryResponse
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-    }
-
-    // Response DTO - matches GetCommentsEndpoint.Response inline record
-    public class GetCommentsResponse
-    {
-        public int Id { get; set; }
-        public int PostId { get; set; }
-        public string Body { get; set; }
-        public string AuthorName { get; set; }
-        public DateTime CreatedAt { get; set; }
-    }
-
-    // Request DTO - matches CreateCommentEndpoint.Request inline record
-    public class CreateCommentRequest
-    {
-        public int PostId { get; set; }
-        public string Body { get; set; }
-    }
-
-    // Response DTO - matches CreateCommentEndpoint.Response inline record
-    public class CreateCommentResponse
-    {
-        public int Id { get; set; }
-        public int PostId { get; set; }
-        public string Body { get; set; }
-        public string AuthorId { get; set; }
-        public DateTime CreatedAt { get; set; }
-    }
-
-    // Request DTO - matches RegisterUserEndpoint.Request inline record
-    public class RegisterUserRequest
-    {
-        public string DisplayName { get; set; }
-        public string Email { get; set; }
-        public string Password { get; set; }
-    }
-
-    // Response DTO - matches RegisterUserEndpoint.Response inline record
-    public class RegisterUserResponse
-    {
-        public string Id { get; set; }
-        public string DisplayName { get; set; }
-        public string Email { get; set; }
-        public string ProfilePictureUrl { get; set; }
-    }
-
-    // Request DTO - matches LoginUserEndpoint.Request inline record
-    public class LoginUserRequest
-    {
-        public string Email { get; set; }
-        public string Password { get; set; }
-    }
-
-    // Response DTO - matches LoginUserEndpoint.Response inline record
-    public class LoginUserResponse
-    {
-        public string Message { get; set; }
-    }
-
-    // Response DTO - matches GetCurrentUserEndpoint.Response inline record
-    public class GetCurrentUserResponse
-    {
-        public string Id { get; set; }
-        public string DisplayName { get; set; }
-        public string Email { get; set; }
-        public string ProfilePictureUrl { get; set; }
-        public List<string> Roles { get; set; }
-    }
-
-    // Response DTO - matches ToggleLikeEndpoint.Response inline record
-    public class ToggleLikeResponse
-    {
-        public string Message { get; set; }
-    }
-
-    // Custom test factory that sets the environment to Testing
-    // The API's Program.cs will automatically use in-memory database for Testing environment
     public class CustomWebApplicationFactory : WebApplicationFactory<AnotherGoodAPI.Program>
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -199,12 +66,7 @@ namespace ForumTest
         public async Task Create_Post_Test()
         {
             // Arrange
-            var createPost = new CreatePostRequest
-            {
-                Title = "Test Post",
-                Content = "This is a test post",
-                CategoryId = 1 // Using seeded category
-            };
+            var createPost = new CreatePostRequest("Test Post", "This is a test post", 1);
 
             // Act
             var response = await _httpClient.PostAsJsonAsync("/posts", createPost);
@@ -221,10 +83,9 @@ namespace ForumTest
 
             var result = await response.Content.ReadFromJsonAsync<CreatePostResponse>();
             Assert.NotNull(result);
-            Assert.NotNull(result.Post);
-            Assert.Equal(createPost.Title, result.Post.Title);
-            Assert.Equal(createPost.Content, result.Post.Body);
-            Assert.True(result.Post.Id > 0, "Post ID should be assigned");
+            Assert.Equal("Test Post", result.Title);
+            Assert.Equal("This is a test post", result.Content);
+            Assert.True(result.Id > 0, "Post ID should be assigned");
         }
 
         // Test: Verify that creating multiple posts results in unique post IDs
@@ -238,18 +99,8 @@ namespace ForumTest
         public async Task Unique_Post_Test()
         {
             // Arrange
-            var createPost1 = new CreatePostRequest
-            {
-                Title = "Test Post 1",
-                Content = "This is test post 1",
-                CategoryId = 1
-            };
-            var createPost2 = new CreatePostRequest
-            {
-                Title = "Test Post 2",
-                Content = "This is test post 2",
-                CategoryId = 2
-            };
+            var createPost1 = new CreatePostRequest("Test Post 1", "This is test post 1", 1);
+            var createPost2 = new CreatePostRequest("Test Post 2", "This is test post 2", 2);
 
             // Act
             var response1 = await _httpClient.PostAsJsonAsync("/posts", createPost1);
@@ -271,11 +122,9 @@ namespace ForumTest
 
             Assert.NotNull(result1);
             Assert.NotNull(result2);
-            Assert.NotNull(result1.Post);
-            Assert.NotNull(result2.Post);
-            Assert.NotEqual(result1.Post.Id, result2.Post.Id);
-            Assert.Equal("Test Post 1", result1.Post.Title);
-            Assert.Equal("Test Post 2", result2.Post.Title);
+            Assert.NotEqual(result1.Id, result2.Id);
+            Assert.Equal("Test Post 1", result1.Title);
+            Assert.Equal("Test Post 2", result2.Title);
         }
 
         // Test: Verify that getting all posts works correctly
@@ -338,12 +187,7 @@ namespace ForumTest
         {
             // Arrange
             int testPostId = 1;
-            var updateRequest = new UpdatePostRequest
-            {
-                Title = "Updated Test Post",
-                Content = "This is updated content",
-                CategoryId = 1
-            };
+            var updateRequest = new UpdatePostRequest("Updated Test Post", "This is updated content", 1);
 
             // Act
             var response = await _httpClient.PutAsJsonAsync($"/posts/{testPostId}", updateRequest);
@@ -371,8 +215,8 @@ namespace ForumTest
             Assert.True(response.IsSuccessStatusCode, $"API call failed with status code: {response.StatusCode}");
             var result = await response.Content.ReadFromJsonAsync<UpdatePostResponse>();
             Assert.NotNull(result);
-            Assert.Equal(updateRequest.Title, result.Title);
-            Assert.Equal(updateRequest.Content, result.Content);
+            Assert.Equal("Updated Test Post", result.Title);
+            Assert.Equal("This is updated content", result.Content);
         }
 
         // Test: Verify that deleting a post works correctly (or returns 401/403 if unauthorized)
@@ -486,11 +330,10 @@ namespace ForumTest
         public async Task Create_Category_Test()
         {
             // Arrange
-            var createCategory = new CategoryCreateRequest
-            {
-                Name = "Test Category " + Guid.NewGuid().ToString().Substring(0, 8),
-                Description = "This is a test category"
-            };
+            var createCategory = new CategoryCreateRequest(
+                "Test Category " + Guid.NewGuid().ToString().Substring(0, 8),
+                "This is a test category"
+            );
 
             // Act
             var response = await _httpClient.PostAsJsonAsync("/categories", createCategory);
@@ -553,11 +396,7 @@ namespace ForumTest
         public async Task Create_Comment_Test()
         {
             // Arrange
-            var createComment = new CreateCommentRequest
-            {
-                PostId = 1,
-                Body = "This is a test comment"
-            };
+            var createComment = new CreateCommentRequest(1, "This is a test comment");
 
             // Act
             var response = await _httpClient.PostAsJsonAsync("/comments", createComment);
@@ -580,8 +419,8 @@ namespace ForumTest
             var result = await response.Content.ReadFromJsonAsync<CreateCommentResponse>();
             Assert.NotNull(result);
             Assert.True(result.Id > 0, "Comment ID should be assigned");
-            Assert.Equal(createComment.PostId, result.PostId);
-            Assert.Equal(createComment.Body, result.Body);
+            Assert.Equal(1, result.PostId);
+            Assert.Equal("This is a test comment", result.Body);
         }
     }
 
@@ -606,12 +445,11 @@ namespace ForumTest
         {
             // Arrange
             var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
-            var registerRequest = new RegisterUserRequest
-            {
-                DisplayName = "Test User " + uniqueId,
-                Email = $"testuser{uniqueId}@example.com",
-                Password = "TestPassword123!"
-            };
+            var registerRequest = new RegisterUserRequest(
+                "Test User " + uniqueId,
+                $"testuser{uniqueId}@example.com",
+                "TestPassword123!"
+            );
 
             // Act
             var response = await _httpClient.PostAsJsonAsync("/users/register", registerRequest);
@@ -642,11 +480,7 @@ namespace ForumTest
         public async Task Login_User_Test()
         {
             // Arrange
-            var loginRequest = new LoginUserRequest
-            {
-                Email = "testuser@example.com",
-                Password = "TestPassword123!"
-            };
+            var loginRequest = new LoginUserRequest("testuser@example.com", "TestPassword123!");
 
             // Act
             var response = await _httpClient.PostAsJsonAsync("/users/login", loginRequest);
