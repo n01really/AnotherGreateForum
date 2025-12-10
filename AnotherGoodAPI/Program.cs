@@ -16,10 +16,20 @@ namespace AnotherGoodAPI
             var builder = WebApplication.CreateBuilder(args);
             builder.Environment.WebRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
 
-            var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-
-            builder.Services.AddDbContext<ForumDbContext>(options =>
-                options.UseNpgsql(connectionString));
+            // Conditionally configure database based on environment
+            if (builder.Environment.IsEnvironment("Testing"))
+            {
+                // Use in-memory database for testing
+                builder.Services.AddDbContext<ForumDbContext>(options =>
+                    options.UseInMemoryDatabase("TestDatabase"));
+            }
+            else
+            {
+                // Use PostgreSQL for production and development
+                var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+                builder.Services.AddDbContext<ForumDbContext>(options =>
+                    options.UseNpgsql(connectionString));
+            }
 
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ForumDbContext>()
