@@ -21,6 +21,9 @@ public class DeletePostEndpoint : IEndpointMapper
     public async Task<IResult> HandleAsync(int id, ForumDbContext db, HttpContext http)
     {
         var userId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null)
+            return Results.Unauthorized();
+            
         var isAdmin = http.User.IsInRole("Admin");
 
         var post = await db.Posts.FindAsync(id);

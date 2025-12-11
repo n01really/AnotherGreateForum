@@ -17,16 +17,32 @@ namespace Another_Great_Forum
             builder.Services.AddHttpClient(nameof(Pages.RegisterModel), client =>
             {
                 client.BaseAddress = new Uri(apiBaseUrl);
+            })
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            {
+                UseCookies = true,
+                CookieContainer = new System.Net.CookieContainer()
             });
 
             builder.Services.AddHttpClient(nameof(Pages.LoginModel), client =>
             {
                 client.BaseAddress = new Uri(apiBaseUrl);
+            })
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            {
+                UseCookies = true,
+                CookieContainer = new System.Net.CookieContainer()
             });
 
             builder.Services.AddHttpClient(nameof(Pages.AdminPageModel), client =>
             {
                 client.BaseAddress = new Uri(apiBaseUrl);
+            })
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            {
+                UseCookies = true,
+                CookieContainer = new System.Net.CookieContainer(),
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
             });
 
             var app = builder.Build();

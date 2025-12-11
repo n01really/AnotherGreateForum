@@ -77,14 +77,7 @@ namespace Another_Great_Forum.Pages
                 var response = await httpClient.GetAsync("/posts");
                 if (response.IsSuccessStatusCode)
                 {
-                    var posts = await response.Content.ReadFromJsonAsync<List<PostDto>>() ?? new();
-
-                    // Assign Author and Category using 'with' expression
-                    Posts = posts.Select(p => p with
-                    {
-                        Author = Users.FirstOrDefault(u => u.Id == p.AuthorId),
-                        Category = Categories.FirstOrDefault(c => c.Id == p.CategoryId)
-                    }).ToList();
+                    Posts = await response.Content.ReadFromJsonAsync<List<PostDto>>() ?? new();
                 }
             }
             catch (Exception ex)
@@ -114,11 +107,21 @@ namespace Another_Great_Forum.Pages
         {
             var httpClient = _httpClientFactory.CreateClient(nameof(AdminPageModel));
             var response = await httpClient.DeleteAsync($"/posts/{id}");
+            
+            _logger.LogWarning($"Delete post {id} response: {response.StatusCode}");
+            
             if (!response.IsSuccessStatusCode)
             {
-                TempData["ErrorMessage"] = "Failed to delete post.";
+                var errorContent = await response.Content.ReadAsStringAsync();
+                _logger.LogError($"Failed to delete post {id}. Status: {response.StatusCode}, Content: {errorContent}");
+                ErrorMessage = $"Failed to delete post. Status: {response.StatusCode}";
             }
+            
+            // Reload all data to ensure proper relationships
+            await LoadCategoriesAsync();
+            await LoadUsersAsync();
             await LoadPostsAsync();
+            
             return RedirectToPage();
         }
 
@@ -133,14 +136,11 @@ namespace Another_Great_Forum.Pages
             int Id,
             string Title,
             string Body,
+            string AuthorName,
+            string CategoryName,
             DateTime CreatedAt,
-            DateTime? UpdatedAt,
-            string AuthorId,
-            UserDto? Author,
-            int CategoryId,
-            CategoryDto? Category,
-            List<CommentDto>? Comments,
-            List<LikeDto>? Likes
+            int CommentCount,
+            int LikeCount
         );
 
         public record CommentDto(int Id, string Body, DateTime CreatedAt);

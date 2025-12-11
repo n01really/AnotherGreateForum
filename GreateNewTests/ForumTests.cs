@@ -693,5 +693,6 @@ namespace ForumTest
             Assert.NotNull(result.Email);
             Assert.NotNull(result.Roles);
         }
+
     }
 }

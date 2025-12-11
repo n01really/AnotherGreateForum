@@ -9,7 +9,7 @@ namespace AnotherGoodAPI
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             Env.Load();
 
@@ -94,6 +94,16 @@ namespace AnotherGoodAPI
 
             var app = builder.Build();
 
+            // Seed users and roles (not in testing environment)
+            if (!builder.Environment.IsEnvironment("Testing"))
+            {
+                using (var scope = app.Services.CreateScope())
+                {
+                    var services = scope.ServiceProvider;
+                    await IdentitySeeder.SeedAsync(services);
+                }
+            }
+
             app.UseCors("FrontendPolicy");
             app.UseStaticFiles();
             app.UseHttpsRedirection();
@@ -102,7 +112,7 @@ namespace AnotherGoodAPI
 
             EndpointRegistrar.MapAllEndpoints(app);
 
-            app.Run();
+            await app.RunAsync();
         }
     }
 }
