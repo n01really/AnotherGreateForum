@@ -107,21 +107,21 @@ namespace Another_Great_Forum.Pages
         {
             var httpClient = _httpClientFactory.CreateClient(nameof(AdminPageModel));
             var response = await httpClient.DeleteAsync($"/posts/{id}");
-            
+
             _logger.LogWarning($"Delete post {id} response: {response.StatusCode}");
-            
+
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
                 _logger.LogError($"Failed to delete post {id}. Status: {response.StatusCode}, Content: {errorContent}");
                 ErrorMessage = $"Failed to delete post. Status: {response.StatusCode}";
             }
-            
+
             // Reload all data to ensure proper relationships
             await LoadCategoriesAsync();
             await LoadUsersAsync();
             await LoadPostsAsync();
-            
+
             return RedirectToPage();
         }
 

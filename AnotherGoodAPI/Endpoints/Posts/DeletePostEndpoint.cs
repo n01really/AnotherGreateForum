@@ -23,7 +23,7 @@ public class DeletePostEndpoint : IEndpointMapper
         var userId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null)
             return Results.Unauthorized();
-            
+
         var isAdmin = http.User.IsInRole("Admin");
 
         var post = await db.Posts.FindAsync(id);
