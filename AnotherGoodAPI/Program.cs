@@ -38,8 +38,29 @@ namespace AnotherGoodAPI
             builder.Services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.HttpOnly = true;
-                options.Cookie.SameSite = SameSiteMode.None;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+
+                if (builder.Environment.IsEnvironment("Testing"))
+                {
+                    // For testing environment, disable redirects and use lax cookie settings
+                    options.Cookie.SameSite = SameSiteMode.Lax;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.None;
+                    options.Events.OnRedirectToLogin = context =>
+                    {
+                        context.Response.StatusCode = 401;
+                        return Task.CompletedTask;
+                    };
+                    options.Events.OnRedirectToAccessDenied = context =>
+                    {
+                        context.Response.StatusCode = 403;
+                        return Task.CompletedTask;
+                    };
+                }
+                else
+                {
+                    // For production/development, use secure cookie settings
+                    options.Cookie.SameSite = SameSiteMode.None;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                }
             });
 
             builder.Services.AddAuthorization();

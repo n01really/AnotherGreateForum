@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace AnotherGoodAPI.Endpoints.Posts;
 
@@ -29,7 +30,7 @@ public class UpdatePostEndpoint : IEndpointMapper
 
     public async Task<IResult> HandleAsync(int id, Request request, ForumDbContext db, HttpContext http)
     {
-        var userId = http.User.Identity?.Name;
+        var userId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null)
             return Results.Unauthorized();
 

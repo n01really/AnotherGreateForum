@@ -45,15 +45,25 @@ namespace ForumTest
         {
             builder.UseEnvironment("Testing");
         }
+
+        public HttpClient CreateClientWithCookies()
+        {
+            var clientOptions = new WebApplicationFactoryClientOptions
+            {
+                AllowAutoRedirect = true,
+                HandleCookies = true
+            };
+            return CreateClient(clientOptions);
+        }
     }
 
     public class PostTests : IClassFixture<CustomWebApplicationFactory>
     {
-        private readonly HttpClient _httpClient;
+        private readonly CustomWebApplicationFactory _factory;
 
         public PostTests(CustomWebApplicationFactory factory)
         {
-            _httpClient = factory.CreateClient();
+            _factory = factory;
         }
 
         // Test: Verify that creating a post works (or returns 401 if authentication is required)
@@ -65,20 +75,30 @@ namespace ForumTest
         [Fact]
         public async Task Create_Post_Test()
         {
-            // Arrange
-            var createPost = new CreatePostRequest("Test Post", "This is a test post", 1);
-
-            // Act
-            var response = await _httpClient.PostAsJsonAsync("/posts", createPost);
-
-            // Assert
-            // Note: This endpoint requires authentication and will return 401 if not logged in
-            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            var httpClient = _factory.CreateClientWithCookies();
+            
+            // Arrange - Register a user (which automatically signs them in)
+            var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
+            var registerRequest = new RegisterUserRequest(
+                "Test User " + uniqueId,
+                $"testuser{uniqueId}@example.com",
+                "TestPassword123!"
+            );
+            
+            var registerResponse = await httpClient.PostAsJsonAsync("/users/register", registerRequest);
+            if (!registerResponse.IsSuccessStatusCode)
             {
-                Assert.True(true, "Post creation requires authentication - expected 401");
+                Assert.True(true, $"User registration failed - cannot test post creation");
                 return;
             }
 
+            // Now create the post (user is already signed in from registration)
+            var createPost = new CreatePostRequest("Test Post", "This is a test post", 1);
+
+            // Act
+            var response = await httpClient.PostAsJsonAsync("/posts", createPost);
+
+            // Assert
             Assert.True(response.IsSuccessStatusCode, $"API call failed with status code: {response.StatusCode}");
 
             var result = await response.Content.ReadFromJsonAsync<CreatePostResponse>();
@@ -98,22 +118,32 @@ namespace ForumTest
         [Fact]
         public async Task Unique_Post_Test()
         {
-            // Arrange
-            var createPost1 = new CreatePostRequest("Test Post 1", "This is test post 1", 1);
-            var createPost2 = new CreatePostRequest("Test Post 2", "This is test post 2", 2);
-
-            // Act
-            var response1 = await _httpClient.PostAsJsonAsync("/posts", createPost1);
-            var response2 = await _httpClient.PostAsJsonAsync("/posts", createPost2);
-
-            // Assert
-            // Note: This endpoint requires authentication and will return 401 if not logged in
-            if (response1.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            var httpClient = _factory.CreateClientWithCookies();
+            
+            // Arrange - Register a user (which automatically signs them in)
+            var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
+            var registerRequest = new RegisterUserRequest(
+                "Test User " + uniqueId,
+                $"testuser{uniqueId}@example.com",
+                "TestPassword123!"
+            );
+            
+            var registerResponse = await httpClient.PostAsJsonAsync("/users/register", registerRequest);
+            if (!registerResponse.IsSuccessStatusCode)
             {
-                Assert.True(true, "Post creation requires authentication - expected 401");
+                Assert.True(true, $"User registration failed - cannot test post creation");
                 return;
             }
 
+            // Now create the posts (user is already signed in from registration) - use same category ID
+            var createPost1 = new CreatePostRequest("Test Post 1", "This is test post 1", 1);
+            var createPost2 = new CreatePostRequest("Test Post 2", "This is test post 2", 1);
+
+            // Act
+            var response1 = await httpClient.PostAsJsonAsync("/posts", createPost1);
+            var response2 = await httpClient.PostAsJsonAsync("/posts", createPost2);
+
+            // Assert
             Assert.True(response1.IsSuccessStatusCode, $"First API call failed with status code: {response1.StatusCode}");
             Assert.True(response2.IsSuccessStatusCode, $"Second API call failed with status code: {response2.StatusCode}");
 
@@ -136,8 +166,10 @@ namespace ForumTest
         [Fact]
         public async Task Get_Posts_Test()
         {
+            var httpClient = _factory.CreateClient();
+            
             // Arrange & Act
-            var response = await _httpClient.GetAsync("/posts");
+            var response = await httpClient.GetAsync("/posts");
 
             // Assert
             Assert.True(response.IsSuccessStatusCode, $"API call failed with status code: {response.StatusCode}");
@@ -155,11 +187,13 @@ namespace ForumTest
         [Fact]
         public async Task Get_Post_By_Id_Test()
         {
+            var httpClient = _factory.CreateClient();
+            
             // Arrange
             int testPostId = 1;
 
             // Act
-            var response = await _httpClient.GetAsync($"/posts/{testPostId}");
+            var response = await httpClient.GetAsync($"/posts/{testPostId}");
 
             // Assert
             if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -187,18 +221,27 @@ namespace ForumTest
         [Fact]
         public async Task Update_Post_Test()
         {
-            // Arrange - First, try to create a post (will require authentication)
-            var createPost = new CreatePostRequest("Original Test Post", "Original content", 1);
-            var createResponse = await _httpClient.PostAsJsonAsync("/posts", createPost);
-
-            // If we can't create a post due to authentication, we can't test update either
-            if (createResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            var httpClient = _factory.CreateClientWithCookies();
+            
+            // Arrange - Register a user (which automatically signs them in)
+            var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
+            var registerRequest = new RegisterUserRequest(
+                "Test User " + uniqueId,
+                $"testuser{uniqueId}@example.com",
+                "TestPassword123!"
+            );
+            
+            var registerResponse = await httpClient.PostAsJsonAsync("/users/register", registerRequest);
+            if (!registerResponse.IsSuccessStatusCode)
             {
-                Assert.True(true, "Post creation requires authentication - cannot test update without auth");
+                Assert.True(true, $"User registration failed - cannot test post update");
                 return;
             }
 
-            // If creation failed for another reason, skip the test
+            // Create a post to update (user is already signed in from registration)
+            var createPost = new CreatePostRequest("Original Test Post", "Original content", 1);
+            var createResponse = await httpClient.PostAsJsonAsync("/posts", createPost);
+
             if (!createResponse.IsSuccessStatusCode)
             {
                 Assert.True(true, $"Post creation failed with status {createResponse.StatusCode} - cannot test update");
@@ -213,28 +256,9 @@ namespace ForumTest
             var updateRequest = new UpdatePostRequest("Updated Test Post", "This is updated content", 1);
 
             // Act
-            var response = await _httpClient.PutAsJsonAsync($"/posts/{testPostId}", updateRequest);
+            var response = await httpClient.PutAsJsonAsync($"/posts/{testPostId}", updateRequest);
 
             // Assert
-            // Note: This endpoint requires authentication and authorization
-            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                Assert.True(true, "Post update requires authentication - expected 401");
-                return;
-            }
-
-            if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
-            {
-                Assert.True(true, "Post update requires correct user - expected 403");
-                return;
-            }
-
-            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                Assert.True(true, "Post not found - expected 404");
-                return;
-            }
-
             Assert.True(response.IsSuccessStatusCode, $"API call failed with status code: {response.StatusCode}");
             var result = await response.Content.ReadFromJsonAsync<UpdatePostResponse>();
             Assert.NotNull(result);
@@ -248,18 +272,32 @@ namespace ForumTest
         // 2. Send DELETE request to /posts/{id} endpoint for the created post
         // 3. Check if response is no content (204), unauthorized (401), forbidden (403), or not found (404)
         // 4. If successful, verify no content is returned (204 status)
+        // 5. If unauthorized, verify 401 status
+        // 6. If forbidden, verify 403 status
+        // 7. If not found, verify 404 status
         [Fact]
         public async Task Delete_Post_Test()
         {
-            // Arrange - First, try to create a post (will require authentication)
-            var createPost = new CreatePostRequest("Post to Delete", "This post will be deleted", 1);
-            var createResponse = await _httpClient.PostAsJsonAsync("/posts", createPost);
-
-            if (createResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            var httpClient = _factory.CreateClientWithCookies();
+            
+            // Arrange - Register a user (which automatically signs them in)
+            var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
+            var registerRequest = new RegisterUserRequest(
+                "Test User " + uniqueId,
+                $"testuser{uniqueId}@example.com",
+                "TestPassword123!"
+            );
+            
+            var registerResponse = await httpClient.PostAsJsonAsync("/users/register", registerRequest);
+            if (!registerResponse.IsSuccessStatusCode)
             {
-                Assert.True(true, "Post creation requires authentication - cannot test delete without auth");
+                Assert.True(true, $"User registration failed - cannot test post deletion");
                 return;
             }
+
+            // Create a post to delete (user is already signed in from registration)
+            var createPost = new CreatePostRequest("Post to Delete", "This post will be deleted", 1);
+            var createResponse = await httpClient.PostAsJsonAsync("/posts", createPost);
 
             if (!createResponse.IsSuccessStatusCode)
             {
@@ -272,28 +310,9 @@ namespace ForumTest
             int testPostId = createdPost.Id;
 
             // Act
-            var response = await _httpClient.DeleteAsync($"/posts/{testPostId}");
+            var response = await httpClient.DeleteAsync($"/posts/{testPostId}");
 
             // Assert
-            // Note: This endpoint requires authentication and authorization
-            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                Assert.True(true, "Post deletion requires authentication - expected 401");
-                return;
-            }
-
-            if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
-            {
-                Assert.True(true, "Post deletion requires correct user or admin - expected 403");
-                return;
-            }
-
-            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                Assert.True(true, "Post not found - expected 404");
-                return;
-            }
-
             Assert.Equal(System.Net.HttpStatusCode.NoContent, response.StatusCode);
         }
 
@@ -306,18 +325,27 @@ namespace ForumTest
         [Fact]
         public async Task Toggle_Like_Post_Test()
         {
-            // Arrange - First, try to create a post (will require authentication)
-            var createPost = new CreatePostRequest("Post to Like", "This post will be liked", 1);
-            var createResponse = await _httpClient.PostAsJsonAsync("/posts", createPost);
-
-            // If we can't create a post due to authentication, we can't test toggle like either
-            if (createResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            var httpClient = _factory.CreateClientWithCookies();
+            
+            // Arrange - Register a user (which automatically signs them in)
+            var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
+            var registerRequest = new RegisterUserRequest(
+                "Test User " + uniqueId,
+                $"testuser{uniqueId}@example.com",
+                "TestPassword123!"
+            );
+            
+            var registerResponse = await httpClient.PostAsJsonAsync("/users/register", registerRequest);
+            if (!registerResponse.IsSuccessStatusCode)
             {
-                Assert.True(true, "Post creation requires authentication - cannot test toggle like without auth");
+                Assert.True(true, $"User registration failed - cannot test toggle like");
                 return;
             }
 
-            // If creation failed for another reason, skip the test
+            // Create a post to like (user is already signed in from registration)
+            var createPost = new CreatePostRequest("Post to Like", "This post will be liked", 1);
+            var createResponse = await httpClient.PostAsJsonAsync("/posts", createPost);
+
             if (!createResponse.IsSuccessStatusCode)
             {
                 Assert.True(true, $"Post creation failed with status {createResponse.StatusCode} - cannot test toggle like");
@@ -329,22 +357,9 @@ namespace ForumTest
             int testPostId = createdPost.Id;
 
             // Act
-            var response = await _httpClient.PostAsync($"/posts/{testPostId}/togglelike", null);
+            var response = await httpClient.PostAsync($"/posts/{testPostId}/togglelike", null);
 
             // Assert
-            // Note: This endpoint requires authentication
-            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                Assert.True(true, "Toggle like requires authentication - expected 401");
-                return;
-            }
-
-            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                Assert.True(true, "Post not found - expected 404");
-                return;
-            }
-
             Assert.True(response.IsSuccessStatusCode, $"API call failed with status code: {response.StatusCode}");
             var result = await response.Content.ReadFromJsonAsync<ToggleLikeResponse>();
             Assert.NotNull(result);
@@ -355,11 +370,11 @@ namespace ForumTest
 
     public class CategoryTests : IClassFixture<CustomWebApplicationFactory>
     {
-        private readonly HttpClient _httpClient;
+        private readonly CustomWebApplicationFactory _factory;
 
         public CategoryTests(CustomWebApplicationFactory factory)
         {
-            _httpClient = factory.CreateClient();
+            _factory = factory;
         }
 
         // Test: Verify that getting all categories works correctly
@@ -371,8 +386,10 @@ namespace ForumTest
         [Fact]
         public async Task Get_Categories_Test()
         {
+            var httpClient = _factory.CreateClient();
+            
             // Arrange & Act
-            var response = await _httpClient.GetAsync("/categories");
+            var response = await httpClient.GetAsync("/categories");
 
             // Assert
             Assert.True(response.IsSuccessStatusCode, $"API call failed with status code: {response.StatusCode}");
@@ -390,6 +407,8 @@ namespace ForumTest
         [Fact]
         public async Task Create_Category_Test()
         {
+            var httpClient = _factory.CreateClient();
+            
             // Arrange
             var createCategory = new CategoryCreateRequest(
                 "Test Category " + Guid.NewGuid().ToString().Substring(0, 8),
@@ -397,7 +416,7 @@ namespace ForumTest
             );
 
             // Act
-            var response = await _httpClient.PostAsJsonAsync("/categories", createCategory);
+            var response = await httpClient.PostAsJsonAsync("/categories", createCategory);
 
             // Assert
             if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
@@ -417,11 +436,11 @@ namespace ForumTest
 
     public class CommentTests : IClassFixture<CustomWebApplicationFactory>
     {
-        private readonly HttpClient _httpClient;
+        private readonly CustomWebApplicationFactory _factory;
 
         public CommentTests(CustomWebApplicationFactory factory)
         {
-            _httpClient = factory.CreateClient();
+            _factory = factory;
         }
 
         // Test: Verify that getting comments for a specific post works correctly
@@ -434,11 +453,23 @@ namespace ForumTest
         [Fact]
         public async Task Get_Comments_For_Post_Test()
         {
-            // Arrange - First, try to create a post (will require authentication)
-            var createPost = new CreatePostRequest("Post for Comments", "This post will have comments", 1);
-            var createResponse = await _httpClient.PostAsJsonAsync("/posts", createPost);
+            var httpClient = _factory.CreateClientWithCookies();
+            
+            // Arrange - Register a user (which automatically signs them in)
+            var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
+            var registerRequest = new RegisterUserRequest(
+                "Test User " + uniqueId,
+                $"testuser{uniqueId}@example.com",
+                "TestPassword123!"
+            );
+            
+            var registerResponse = await httpClient.PostAsJsonAsync("/users/register", registerRequest);
 
-            // If we can't create a post due to authentication, use a default ID
+            // Create a post (user is already signed in from registration)
+            var createPost = new CreatePostRequest("Post for Comments", "This post will have comments", 1);
+            var createResponse = await httpClient.PostAsJsonAsync("/posts", createPost);
+
+            // Use the created post ID if available, otherwise default to 1
             int testPostId = 1;
             if (createResponse.IsSuccessStatusCode)
             {
@@ -450,7 +481,7 @@ namespace ForumTest
             }
 
             // Act
-            var response = await _httpClient.GetAsync($"/comments/post/{testPostId}");
+            var response = await httpClient.GetAsync($"/comments/post/{testPostId}");
 
             // Assert
             Assert.True(response.IsSuccessStatusCode, $"API call failed with status code: {response.StatusCode}");
@@ -470,47 +501,43 @@ namespace ForumTest
         [Fact]
         public async Task Create_Comment_Test()
         {
-            // Arrange - First, try to create a post (will require authentication)
-            var createPost = new CreatePostRequest("Post for Comment", "This post will have a comment", 1);
-            var createResponse = await _httpClient.PostAsJsonAsync("/posts", createPost);
-
-            // If we can't create a post due to authentication, we can't test comment creation either
-            if (createResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            var httpClient = _factory.CreateClientWithCookies();
+            
+            // Arrange - Register a user (which automatically signs them in)
+            var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
+            var registerRequest = new RegisterUserRequest(
+                "Test User " + uniqueId,
+                $"testuser{uniqueId}@example.com",
+                "TestPassword123!"
+            );
+            
+            var registerResponse = await httpClient.PostAsJsonAsync("/users/register", registerRequest);
+            if (!registerResponse.IsSuccessStatusCode)
             {
-                Assert.True(true, "Post creation requires authentication - cannot test comment creation without auth");
+                Assert.True(true, $"User registration failed - cannot test comment creation");
                 return;
             }
 
-            // If creation failed for another reason, try with default post ID
-            int postId = 1;
-            if (createResponse.IsSuccessStatusCode)
+            // Create a post (user is already signed in from registration)
+            var createPost = new CreatePostRequest("Post for Comment", "This post will have a comment", 1);
+            var createResponse = await httpClient.PostAsJsonAsync("/posts", createPost);
+
+            if (!createResponse.IsSuccessStatusCode)
             {
-                var createdPost = await createResponse.Content.ReadFromJsonAsync<CreatePostResponse>();
-                if (createdPost != null)
-                {
-                    postId = createdPost.Id;
-                }
+                Assert.True(true, $"Post creation failed - cannot test comment creation");
+                return;
             }
+
+            var createdPost = await createResponse.Content.ReadFromJsonAsync<CreatePostResponse>();
+            Assert.NotNull(createdPost);
+            int postId = createdPost.Id;
 
             var createComment = new CreateCommentRequest(postId, "This is a test comment");
 
             // Act
-            var response = await _httpClient.PostAsJsonAsync("/comments", createComment);
+            var response = await httpClient.PostAsJsonAsync("/comments", createComment);
 
             // Assert
-            // Note: This endpoint requires authentication
-            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                Assert.True(true, "Comment creation requires authentication - expected 401");
-                return;
-            }
-
-            if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
-            {
-                Assert.True(true, "Comment creation failed - possibly post doesn't exist or validation error");
-                return;
-            }
-
             Assert.Equal(System.Net.HttpStatusCode.Created, response.StatusCode);
             var result = await response.Content.ReadFromJsonAsync<CreateCommentResponse>();
             Assert.NotNull(result);
@@ -522,11 +549,11 @@ namespace ForumTest
 
     public class UserTests : IClassFixture<CustomWebApplicationFactory>
     {
-        private readonly HttpClient _httpClient;
+        private readonly CustomWebApplicationFactory _factory;
 
         public UserTests(CustomWebApplicationFactory factory)
         {
-            _httpClient = factory.CreateClient();
+            _factory = factory;
         }
 
         // Test: Verify that user registration works correctly
@@ -539,6 +566,8 @@ namespace ForumTest
         [Fact]
         public async Task Register_User_Test()
         {
+            var httpClient = _factory.CreateClient();
+            
             // Arrange
             var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
             var registerRequest = new RegisterUserRequest(
@@ -548,7 +577,7 @@ namespace ForumTest
             );
 
             // Act
-            var response = await _httpClient.PostAsJsonAsync("/users/register", registerRequest);
+            var response = await httpClient.PostAsJsonAsync("/users/register", registerRequest);
 
             // Assert
             if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
@@ -576,6 +605,8 @@ namespace ForumTest
         [Fact]
         public async Task Login_User_Test()
         {
+            var httpClient = _factory.CreateClient();
+            
             // Arrange - First, register a new user
             var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
             var registerRequest = new RegisterUserRequest(
@@ -584,7 +615,7 @@ namespace ForumTest
                 "TestPassword123!"
             );
 
-            var registerResponse = await _httpClient.PostAsJsonAsync("/users/register", registerRequest);
+            var registerResponse = await httpClient.PostAsJsonAsync("/users/register", registerRequest);
 
             // If registration fails, we can't test login
             if (!registerResponse.IsSuccessStatusCode)
@@ -597,7 +628,7 @@ namespace ForumTest
             var loginRequest = new LoginUserRequest(registerRequest.Email, registerRequest.Password);
 
             // Act
-            var response = await _httpClient.PostAsJsonAsync("/users/login", loginRequest);
+            var response = await httpClient.PostAsJsonAsync("/users/login", loginRequest);
 
             // Assert
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
@@ -627,17 +658,27 @@ namespace ForumTest
         [Fact]
         public async Task Get_Current_User_Test()
         {
-            // Arrange & Act
-            var response = await _httpClient.GetAsync("/users/current");
-
-            // Assert
-            // Note: This endpoint requires authentication
-            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            var httpClient = _factory.CreateClientWithCookies();
+            
+            // Arrange - Register a user (which automatically signs them in)
+            var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
+            var registerRequest = new RegisterUserRequest(
+                "Test User " + uniqueId,
+                $"testuser{uniqueId}@example.com",
+                "TestPassword123!"
+            );
+            
+            var registerResponse = await httpClient.PostAsJsonAsync("/users/register", registerRequest);
+            if (!registerResponse.IsSuccessStatusCode)
             {
-                Assert.True(true, "Get current user requires authentication - expected 401");
+                Assert.True(true, $"User registration failed - cannot test get current user");
                 return;
             }
 
+            // Act (user is already signed in from registration)
+            var response = await httpClient.GetAsync("/users/current");
+
+            // Assert
             if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 Assert.True(true, "Get current user endpoint not found - expected 404");

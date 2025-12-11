@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace AnotherGoodAPI.Endpoints.Posts;
 
@@ -19,7 +20,7 @@ public class DeletePostEndpoint : IEndpointMapper
 
     public async Task<IResult> HandleAsync(int id, ForumDbContext db, HttpContext http)
     {
-        var userId = http.User.Identity?.Name;
+        var userId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
         var isAdmin = http.User.IsInRole("Admin");
 
         var post = await db.Posts.FindAsync(id);
