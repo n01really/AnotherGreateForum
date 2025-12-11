@@ -268,34 +268,33 @@ namespace ForumTest
 
         // Test: Verify that deleting a post works correctly (or returns 401/403 if unauthorized)
         // Steps:
-        // 1. Create a post first
-        // 2. Send DELETE request to /posts/{id} endpoint for the created post
-        // 3. Check if response is no content (204), unauthorized (401), forbidden (403), or not found (404)
-        // 4. If successful, verify no content is returned (204 status)
-        // 5. If unauthorized, verify 401 status
-        // 6. If forbidden, verify 403 status
-        // 7. If not found, verify 404 status
+        // 1. Login as admin user
+        // 2. Create a post to delete
+        // 3. Send DELETE request to /posts/{id} endpoint for the created post
+        // 4. Check if response is no content (204), unauthorized (401), forbidden (403), or not found (404)
+        // 5. If successful, verify no content is returned (204 status)
+        // 6. If unauthorized, verify 401 status
+        // 7. If forbidden, verify 403 status
+        // 8. If not found, verify 404 status
         [Fact]
         public async Task Delete_Post_Test()
         {
             var httpClient = _factory.CreateClientWithCookies();
             
-            // Arrange - Register a user (which automatically signs them in)
-            var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
-            var registerRequest = new RegisterUserRequest(
-                "Test User " + uniqueId,
-                $"testuser{uniqueId}@example.com",
-                "TestPassword123!"
+            // Arrange - Login as admin user
+            var loginRequest = new LoginUserRequest(
+                "admin@example.com",
+                "Admin123!"
             );
             
-            var registerResponse = await httpClient.PostAsJsonAsync("/users/register", registerRequest);
-            if (!registerResponse.IsSuccessStatusCode)
+            var loginResponse = await httpClient.PostAsJsonAsync("/users/login", loginRequest);
+            if (!loginResponse.IsSuccessStatusCode)
             {
-                Assert.True(true, $"User registration failed - cannot test post deletion");
+                Assert.True(true, $"Admin login failed - cannot test post deletion");
                 return;
             }
 
-            // Create a post to delete (user is already signed in from registration)
+            // Create a post to delete (admin is already signed in)
             var createPost = new CreatePostRequest("Post to Delete", "This post will be deleted", 1);
             var createResponse = await httpClient.PostAsJsonAsync("/posts", createPost);
 
