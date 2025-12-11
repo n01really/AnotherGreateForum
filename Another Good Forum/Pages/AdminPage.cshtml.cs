@@ -25,7 +25,7 @@ namespace Another_Great_Forum.Pages
         {
             // Temporary admin bypass
             IsAdmin = true;
-            UserName = "Test Admin";
+            //UserName = "Test Admin";
 
             // Load data
             await LoadCategoriesAsync();

@@ -76,7 +76,7 @@ namespace ForumTest
         public async Task Create_Post_Test()
         {
             var httpClient = _factory.CreateClientWithCookies();
-            
+
             // Arrange - Register a user (which automatically signs them in)
             var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
             var registerRequest = new RegisterUserRequest(
@@ -84,7 +84,7 @@ namespace ForumTest
                 $"testuser{uniqueId}@example.com",
                 "TestPassword123!"
             );
-            
+
             var registerResponse = await httpClient.PostAsJsonAsync("/users/register", registerRequest);
             if (!registerResponse.IsSuccessStatusCode)
             {
@@ -119,7 +119,7 @@ namespace ForumTest
         public async Task Unique_Post_Test()
         {
             var httpClient = _factory.CreateClientWithCookies();
-            
+
             // Arrange - Register a user (which automatically signs them in)
             var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
             var registerRequest = new RegisterUserRequest(
@@ -127,7 +127,7 @@ namespace ForumTest
                 $"testuser{uniqueId}@example.com",
                 "TestPassword123!"
             );
-            
+
             var registerResponse = await httpClient.PostAsJsonAsync("/users/register", registerRequest);
             if (!registerResponse.IsSuccessStatusCode)
             {
@@ -167,7 +167,7 @@ namespace ForumTest
         public async Task Get_Posts_Test()
         {
             var httpClient = _factory.CreateClient();
-            
+
             // Arrange & Act
             var response = await httpClient.GetAsync("/posts");
 
@@ -175,7 +175,6 @@ namespace ForumTest
             Assert.True(response.IsSuccessStatusCode, $"API call failed with status code: {response.StatusCode}");
             var posts = await response.Content.ReadFromJsonAsync<List<GetPostsResponse>>();
             Assert.NotNull(posts);
-
         }
 
         // Test: Verify that getting a single post by ID works correctly
@@ -188,7 +187,7 @@ namespace ForumTest
         public async Task Get_Post_By_Id_Test()
         {
             var httpClient = _factory.CreateClient();
-            
+
             // Arrange
             int testPostId = 1;
 
@@ -222,7 +221,7 @@ namespace ForumTest
         public async Task Update_Post_Test()
         {
             var httpClient = _factory.CreateClientWithCookies();
-            
+
             // Arrange - Register a user (which automatically signs them in)
             var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
             var registerRequest = new RegisterUserRequest(
@@ -230,7 +229,7 @@ namespace ForumTest
                 $"testuser{uniqueId}@example.com",
                 "TestPassword123!"
             );
-            
+
             var registerResponse = await httpClient.PostAsJsonAsync("/users/register", registerRequest);
             if (!registerResponse.IsSuccessStatusCode)
             {
@@ -280,13 +279,13 @@ namespace ForumTest
         public async Task Delete_Post_Test()
         {
             var httpClient = _factory.CreateClientWithCookies();
-            
+
             // Arrange - Login as admin user
             var loginRequest = new LoginUserRequest(
                 "admin@example.com",
                 "Admin123!"
             );
-            
+
             var loginResponse = await httpClient.PostAsJsonAsync("/users/login", loginRequest);
             if (!loginResponse.IsSuccessStatusCode)
             {
@@ -325,7 +324,7 @@ namespace ForumTest
         public async Task Toggle_Like_Post_Test()
         {
             var httpClient = _factory.CreateClientWithCookies();
-            
+
             // Arrange - Register a user (which automatically signs them in)
             var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
             var registerRequest = new RegisterUserRequest(
@@ -333,7 +332,7 @@ namespace ForumTest
                 $"testuser{uniqueId}@example.com",
                 "TestPassword123!"
             );
-            
+
             var registerResponse = await httpClient.PostAsJsonAsync("/users/register", registerRequest);
             if (!registerResponse.IsSuccessStatusCode)
             {
@@ -386,7 +385,7 @@ namespace ForumTest
         public async Task Get_Categories_Test()
         {
             var httpClient = _factory.CreateClient();
-            
+
             // Arrange & Act
             var response = await httpClient.GetAsync("/categories");
 
@@ -407,7 +406,7 @@ namespace ForumTest
         public async Task Create_Category_Test()
         {
             var httpClient = _factory.CreateClient();
-            
+
             // Arrange
             var createCategory = new CategoryCreateRequest(
                 "Test Category " + Guid.NewGuid().ToString().Substring(0, 8),
@@ -453,7 +452,7 @@ namespace ForumTest
         public async Task Get_Comments_For_Post_Test()
         {
             var httpClient = _factory.CreateClientWithCookies();
-            
+
             // Arrange - Register a user (which automatically signs them in)
             var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
             var registerRequest = new RegisterUserRequest(
@@ -461,7 +460,7 @@ namespace ForumTest
                 $"testuser{uniqueId}@example.com",
                 "TestPassword123!"
             );
-            
+
             var registerResponse = await httpClient.PostAsJsonAsync("/users/register", registerRequest);
 
             // Create a post (user is already signed in from registration)
@@ -501,7 +500,7 @@ namespace ForumTest
         public async Task Create_Comment_Test()
         {
             var httpClient = _factory.CreateClientWithCookies();
-            
+
             // Arrange - Register a user (which automatically signs them in)
             var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
             var registerRequest = new RegisterUserRequest(
@@ -509,7 +508,7 @@ namespace ForumTest
                 $"testuser{uniqueId}@example.com",
                 "TestPassword123!"
             );
-            
+
             var registerResponse = await httpClient.PostAsJsonAsync("/users/register", registerRequest);
             if (!registerResponse.IsSuccessStatusCode)
             {
@@ -566,7 +565,7 @@ namespace ForumTest
         public async Task Register_User_Test()
         {
             var httpClient = _factory.CreateClient();
-            
+
             // Arrange
             var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
             var registerRequest = new RegisterUserRequest(
@@ -605,7 +604,7 @@ namespace ForumTest
         public async Task Login_User_Test()
         {
             var httpClient = _factory.CreateClient();
-            
+
             // Arrange - First, register a new user
             var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
             var registerRequest = new RegisterUserRequest(
@@ -658,7 +657,7 @@ namespace ForumTest
         public async Task Get_Current_User_Test()
         {
             var httpClient = _factory.CreateClientWithCookies();
-            
+
             // Arrange - Register a user (which automatically signs them in)
             var uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
             var registerRequest = new RegisterUserRequest(
@@ -666,7 +665,7 @@ namespace ForumTest
                 $"testuser{uniqueId}@example.com",
                 "TestPassword123!"
             );
-            
+
             var registerResponse = await httpClient.PostAsJsonAsync("/users/register", registerRequest);
             if (!registerResponse.IsSuccessStatusCode)
             {
@@ -692,6 +691,5 @@ namespace ForumTest
             Assert.NotNull(result.Email);
             Assert.NotNull(result.Roles);
         }
-
     }
 }
