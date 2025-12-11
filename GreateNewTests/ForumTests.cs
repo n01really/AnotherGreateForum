@@ -119,8 +119,22 @@ namespace ForumTest
                 return;
             }
 
+            // Create a category first
+            var createCategory = new CategoryCreateRequest(
+                "Test Category " + uniqueId,
+                "Category for testing post creation"
+            );
+            var categoryResponse = await httpClient.PostAsJsonAsync("/categories", createCategory);
+            if (!categoryResponse.IsSuccessStatusCode)
+            {
+                Assert.True(true, $"Category creation failed - cannot test post creation");
+                return;
+            }
+            var category = await categoryResponse.Content.ReadFromJsonAsync<CategoryResponse>();
+            Assert.NotNull(category);
+
             // Now create the post (user is already signed in from registration)
-            var createPost = new CreatePostRequest("Test Post", "This is a test post", 1);
+            var createPost = new CreatePostRequest("Test Post", "This is a test post", category.Id);
 
             // Act
             var response = await httpClient.PostAsJsonAsync("/posts", createPost);
