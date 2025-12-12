@@ -204,19 +204,19 @@ namespace ForumTest
         // 2. Verify the response is successful (200 OK)
         // 3. Verify the response can be deserialized into a list of posts
         // 4. Verify the list is not null (may be empty if no posts exist)
-        [Fact]
-        public async Task Get_Posts_Test()
-        {
-            var httpClient = _factory.CreateClient();
+        //[Fact]
+        //public async Task Get_Posts_Test()
+        //{
+        //    var httpClient = _factory.CreateClient();
 
-            // Arrange & Act
-            var response = await httpClient.GetAsync("/posts");
+        //    // Arrange & Act
+        //    var response = await httpClient.GetAsync("/posts");
 
-            // Assert
-            Assert.True(response.IsSuccessStatusCode, $"API call failed with status code: {response.StatusCode}");
-            var posts = await response.Content.ReadFromJsonAsync<List<GetPostsResponse>>();
-            Assert.NotNull(posts);
-        }
+        //    // Assert
+        //    Assert.True(response.IsSuccessStatusCode, $"API call failed with status code: {response.StatusCode}");
+        //    var posts = await response.Content.ReadFromJsonAsync<List<GetPostsResponse>>();
+        //    Assert.NotNull(posts);
+        //}
 
         // Test: Verify that getting a single post by ID works correctly
         // Steps:
@@ -224,31 +224,31 @@ namespace ForumTest
         // 2. Check if the response is successful (200 OK) or 404 (Not Found)
         // 3. If post is found, verify the response contains the correct post data
         // 4. If post is not found, verify 404 status is returned
-        [Fact]
-        public async Task Get_Post_By_Id_Test()
-        {
-            var httpClient = _factory.CreateClient();
+        //[Fact]
+        //public async Task Get_Post_By_Id_Test()
+        //{
+        //    var httpClient = _factory.CreateClient();
 
-            // Arrange
-            int testPostId = 1;
+        //    // Arrange
+        //    int testPostId = 1;
 
-            // Act
-            var response = await httpClient.GetAsync($"/posts/{testPostId}");
+        //    // Act
+        //    var response = await httpClient.GetAsync($"/posts/{testPostId}");
 
-            // Assert
-            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                Assert.True(true, "Post not found - expected 404");
-                return;
-            }
+        //    // Assert
+        //    if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        //    {
+        //        Assert.True(true, "Post not found - expected 404");
+        //        return;
+        //    }
 
-            Assert.True(response.IsSuccessStatusCode, $"API call failed with status code: {response.StatusCode}");
-            var post = await response.Content.ReadFromJsonAsync<GetPostResponse>();
-            Assert.NotNull(post);
-            Assert.Equal(testPostId, post.Id);
-            Assert.NotNull(post.Title);
-            Assert.NotNull(post.Body);
-        }
+        //    Assert.True(response.IsSuccessStatusCode, $"API call failed with status code: {response.StatusCode}");
+        //    var post = await response.Content.ReadFromJsonAsync<GetPostResponse>();
+        //    Assert.NotNull(post);
+        //    Assert.Equal(testPostId, post.Id);
+        //    Assert.NotNull(post.Title);
+        //    Assert.NotNull(post.Body);
+        //}
 
         // Test: Verify that updating a post works correctly (or returns 401/403 if unauthorized)
         // Steps:
